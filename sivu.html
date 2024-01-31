@@ -1,39 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>Yksinkertainen Verkkosivu</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ravintola Varausjärjestelmä</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
+    <!-- Päänavigaatio -->
     <header>
-        <h1>Tervetuloa verkkosivulle!</h1>
+        <h1>Ravintola Ryhmä C</h1>
         <nav>
             <ul>
-                <li><a href="#">Etusivu</a></li>
-                <li><a href="#">Tietoa meistä</a></li>
-                <li><a href="#">Yhteystiedot</a></li>
+                <li><a href="#" data-page="home">Koti</a></li>
+                <li><a href="#" data-page="varaukset">Varaukset</a></li>
+                <li><a href="#" data-page="contact">Yhteystiedot</a></li>
+                <li><a href="#" data-page="register">Rekisteröidy</a></li>
+                <form id="login-form">
+                    <label for="login-username">Käyttäjänimi:</label>
+                    <input type="text" id="login-username" required>   
+                    <label for="login-password">Salasana:</label>
+                    <input type="password" id="login-password" required>         
+                    <button type="submit">Kirjaudu sisään</button>
+                </form>
+
             </ul>
         </nav>
     </header>
 
-    <main>
-        <section>
-            <h2>Esittely</h2>
-            <p>Tämä on yksinkertainen verkkosivu-esimerkki.</p>
-        </section>
-
-        <section>
-            <h2>Uutiset</h2>
-            <ul>
-                <li><a href="#">Uutinen 1</a></li>
-                <li><a href="#">Uutinen 2</a></li>
-                <li><a href="#">Uutinen 3</a></li>
-                <li><a href="#">Joonan testiuutinen </a></li>
-            </ul>
+    <!-- Pääsisältö -->
+    <main id="main-content">
+        <section id="home">
+            <h2>Tervetuloa Ravintola Ryhmä C sivuille!</h2>
+            <p>Tällä sivulla pääset tekemään pöytävarauksen!</p>
         </section>
     </main>
 
+    <!-- Alatunniste -->
     <footer>
-        <p>&copy; 2024 Yrityksen Nimi</p>
+        <p>&copy; 2024 Ravintola Ryhmä C</p>
     </footer>
+
+    <!-- Linkki JavaScript-tiedostoon -->
+    <script src="script.js"></script>
 </body>
+
 </html>
