@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ravintola Varausjärjestelmä</title>
-    <link rel="stylesheet" href="styles.css">
+
 </head>
 
 <body>
@@ -14,10 +14,10 @@
         <h1>Ravintola Ryhmä C</h1>
         <nav>
             <ul>
-                <li><a href="#" data-page="sivu">Koti</a></li>
-                <li><a href="#" data-page="reservations">Varaukset</a></li>
-                <li><a href="#" data-page="contact">Yhteystiedot</a></li>
-                <li><a href="#" data-page="register">Rekisteröidy</a></li>
+                <li><a href="/" data-page="home">Koti</a></li>
+                <li><a href="/varaukset" data-page="varaukset">Varaukset</a></li>
+                <li><a href="/contact" data-page="contact">Yhteystiedot</a></li>
+                <li><a href="/register" data-page="register">Rekisteröidy</a></li>
                 <form id="login-form">
                     <label for="login-username">Käyttäjänimi:</label>
                     <input type="text" id="login-username" required>   
@@ -25,7 +25,6 @@
                     <input type="password" id="login-password" required>         
                     <button type="submit">Kirjaudu sisään</button>
                 </form>
-
             </ul>
         </nav>
     </header>
@@ -43,8 +42,7 @@
         <p>&copy; 2024 Ravintola Ryhmä C</p>
     </footer>
 
-    <!-- Linkki JavaScript-tiedostoon -->
-    <script src="script.js"></script>
+    
 </body>
 
 </html>
