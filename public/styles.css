@@ -1,0 +1,79 @@
+body {
+    font-family: "Trebuchet MS", sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+header {
+    background-color: #ffffff;
+    color: #000000;
+    padding-top: 5px;
+    min-height: 70px;
+    border-bottom: #f7ede2 20px solid;
+}
+
+header h1 {
+    padding-left: 20px;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #f7ede2;
+}
+
+nav ul li {
+    float: left;
+}
+
+nav ul li a {
+    display: block;
+    color: #000000;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+/* Muuttaa linkin värin kun hiiri on päällä */
+nav ul li a:hover {
+    background-color: #F5CAC3;
+}
+
+#login-form {
+    display: inline;
+    float: left;
+    
+}
+
+button {
+    background-color: #f6bd60;
+    color: #000000;
+    padding: 8px 10px;
+    margin: 8px 0;
+    border-radius: 30px;
+    border-color: #f6bd60;
+    cursor: pointer;
+}
+
+#main-content {
+    padding: 20px;
+    text-align: center;
+    
+}
+
+.alaotsikko {
+    color: #f6bd60;
+}
+
+footer {
+    background-color: #f7ede2;
+    color: #000000;
+    text-align: center;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
