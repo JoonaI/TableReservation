@@ -41,11 +41,6 @@ app.put('/user/:id', (req, res) => {
 
 const path = require('path');
 
-// Luodaan reitti varaukset-sivulle siirtymiseen
-app.get('/varaukset', (req, res) => {
-    // Lähetä varauslomakkeen sivu
-    res.sendFile(path.join(__dirname, '/..//../public/varaukset.html'));
-});
 
 // Luodaan reitti rekisteröintisivulle siirtymiseen
 app.get('/register', (req, res) => {

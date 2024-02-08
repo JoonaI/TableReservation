@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,13 +16,19 @@
 
     <main>
         <section id="varaukset-section">
-            <h2>Ajankohtaiset varaukset</h2>
-            <!-- Tässä voit lisätä varauksiin liittyvää sisältöä -->
-            <ul>
-                <li>Tähän näkymään kalenteri ja valitun päivän varaukset?</li>
+            <h2>Tee pöytävaraus</h2>
+            <form id="varaus-form">
+                <label for="pvm">Päivämäärä:</label>
+                <input type="date" id="pvm" name="pvm" required><br><br>
                 
+                <label for="aika">Aika:</label>
+                <input type="time" id="aika" name="aika" required><br><br>
 
-            </ul>
+                <label for="henkilomaara">Henkilömäärä:</label>
+                <input type="number" id="henkilomaara" name="henkilomaara" min="1" required><br><br>
+
+                <input type="submit" value="Tee varaus">
+            </form>
         </section>
     </main>
 
