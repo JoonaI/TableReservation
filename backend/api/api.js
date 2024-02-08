@@ -45,6 +45,16 @@ app.get('/register', (req, res) => {
     res.sendFile(path.join(__dirname, '/..//../public/register.html'));
 });
 
+// Luodaan reitti yhteystietoihin siirtymiseen
+app.get('/contact', (req, res) => {
+    res.sendFile(path.join(__dirname, '/..//../public/contact.html'));
+});
+
+//luodaan reitti varaus sivulle siirtymiselle
+app.get('/varaukset', (req, res) => {
+    res.sendFile(path.join(__dirname, '/..//../public/reservations.html'));
+});
+
 //Luodaan reitti rekisteröintilomakkeen lähetykselle: 
 app.post('/register', (req, res) => {
     const {etunimi, sukunimi, email, username, password} = req.body;
