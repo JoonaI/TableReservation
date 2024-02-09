@@ -53,7 +53,7 @@ app.get('/contact', (req, res) => {
 });
 
 //luodaan reitti varaus sivulle siirtymiselle
-app.get('/varaukset', (req, res) => {
+app.get('/reservations', (req, res) => {
     res.sendFile(path.join(__dirname, '/..//../public/reservations.html'));
 });
 
