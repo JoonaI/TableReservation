@@ -2,10 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rekisteröidy</title>
 </head>
 <body>
+
+    <header>
+        <h1>Ravintola Ryhmä C</h1>
+        <nav>
+            <ul>
+                <li><a href="/" data-page="home">Koti</a></li>
+                <li><a href="/reservations" data-page="reservations">Varaukset</a></li>
+                <li><a href="/contact" data-page="contact">Yhteystiedot</a></li>
+                <li><a href="/register" data-page="register">Rekisteröidy</a></li>
+                <form id="login-form">
+                    <label for="login-username">Käyttäjänimi:</label>
+                    <input type="text" id="login-username" required>   
+                    <label for="login-password">Salasana:</label>
+                    <input type="password" id="login-password" required>         
+                    <button type="submit">Kirjaudu sisään</button>
+                </form>
+            </ul>
+        </nav>
+    </header>
+    
     <main>
         <section id="varaukset-section">
             <h2>Luo tunnukset</h2>

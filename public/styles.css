@@ -68,6 +68,16 @@ button {
     color: #f6bd60;
 }
 
+#varaukset-section {
+    padding: 20px;
+    text-align: center;
+}
+
+#Yhteystiedot-section {
+    padding: 20px;
+    text-align: center;
+}
+
 footer {
     background-color: #f7ede2;
     color: #000000;
