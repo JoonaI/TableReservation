@@ -39,7 +39,7 @@
 
                 <label for="henkilomaara">Henkilömäärä:</label>
                 <input type="number" id="henkilomaara" name="henkilomaara" min="1" required><br><br>
-
+                <input type="submit" id="tarkista-saatavuus" value="Tarkista saatavuus">
                 <input type="submit" value="Tee varaus">
             </form>
         </section>
@@ -48,6 +48,27 @@
     <footer>
         <p>&copy; 2024 Ravintola Ryhmä C</p>
     </footer>
+
+    <script>
+        // Estetään lomakkeen oletustoiminto ja lähetetään tiedot AJAX-pyynnöllä
+        document.getElementById('varaus-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Estetään lomakkeen oletustoiminto
+            const formData = new FormData(this); // Haetaan lomakkeen tiedot
+            fetch('/tarkista-saatavuus', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Tässä voit käsitellä palautetut tiedot ja päivittää sivun näkymää tarvittaessa
+                console.log(data); // Tulostetaan palautetut tiedot konsoliin
+            })
+            .catch(error => console.error('Virhe:', error));
+        });
+    </script>
+</body>
+</html>
+
 
 </body>
 </html>

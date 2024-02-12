@@ -57,6 +57,46 @@ app.get('/reservations', (req, res) => {
     res.sendFile(path.join(__dirname, '/..//../public/reservations.html'));
 });
 
+// Luodaan reitti pöytävarausten tarkistamiselle
+app.post('/tarkista-saatavuus', (req, res) => {
+    // Tässä voit käsitellä pöytävarausten tarkistamiseen liittyvän logiikan
+    // Esimerkiksi voit kutsua haeVapaatPoydat-funktiota tässä ja palauttaa sen tulokset
+    res.json({ message: 'Pöytävarausten tarkistaminen suoritettu!' });
+});
+
+// Funktio, joka hakee vapaana olevat pöydät halutulle päivämäärälle
+function haeVapaatPoydat(haluttuPaivamaara, callback) {
+    // SQL-kysely vapaana olevien pöytien hakemiseksi halutulle päivämäärälle
+    const sql = `
+      SELECT p.poyta_id, p.kapasiteetti, p.lisatiedot
+      FROM poytavaraus.poyta p
+      WHERE p.poyta_id NOT IN (
+        SELECT pv.poyta_id
+        FROM mydb.poytavaraus pv
+        JOIN poytavaraus.varaus v ON pv.varaus_id = v.varaus_id
+        WHERE v.paivamaara = ?
+      )
+    `;
+    
+    // Suoritetaan kysely
+    connection.query(sql, [haluttuPaivamaara], (error, results) => {
+      if (error) {
+        console.error('Virhe tietokantakyselyssä: ' + error.stack);
+        callback(error, null);
+        return;
+      }
+  
+      // Palautetaan kyselyn tulokset
+      callback(null, results);
+    });
+}
+
+
+
+module.exports = {
+    haeVapaatPoydat: haeVapaatPoydat
+};
+
 //Luodaan reitti rekisteröintilomakkeen lähetykselle: 
 app.post('/register', (req, res) => {
     const {etunimi, sukunimi, email, username, password} = req.body;
