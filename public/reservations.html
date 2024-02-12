@@ -43,6 +43,7 @@
                 <input type="submit" value="Tee varaus">
             </form>
         </section>
+        <div id="vapaat-poydat"></div>
     </main>
 
     <footer>
@@ -62,6 +63,16 @@
             .then(data => {
                 // Tässä voit käsitellä palautetut tiedot ja päivittää sivun näkymää tarvittaessa
                 console.log(data); // Tulostetaan palautetut tiedot konsoliin
+                
+                // Tarkistetaan, että data on taulukko ennen kuin käytetään forEach-metodia
+                if (Array.isArray(data)) {
+                    data.forEach(poyta => {
+                        // Käsittele pöytätietoja tässä
+                        console.log(poyta);
+                    });
+                } else {
+                    console.error('Virhe: Palautettu data ei ole taulukko');
+                }
             })
             .catch(error => console.error('Virhe:', error));
         });

@@ -59,22 +59,32 @@ app.get('/reservations', (req, res) => {
 
 // Luodaan reitti pöytävarausten tarkistamiselle
 app.post('/tarkista-saatavuus', (req, res) => {
-    // Tässä voit käsitellä pöytävarausten tarkistamiseen liittyvän logiikan
-    // Esimerkiksi voit kutsua haeVapaatPoydat-funktiota tässä ja palauttaa sen tulokset
-    res.json({ message: 'Pöytävarausten tarkistaminen suoritettu!' });
+    const haluttuPaivamaara = req.body.pvm; // Haetaan päivämäärä lomakkeen lähetyksestä
+    console.log('Haluttu päivämäärä:', haluttuPaivamaara); // Lisätään lokituloste
+
+    haeVapaatPoydat(haluttuPaivamaara, (error, results) => {
+        if (error) {
+            console.error('Virhe vapaata pöytää haettaessa: ' + error.stack);
+            res.status(500).json({ error: 'Virhe vapaata pöytää haettaessa' });
+            return;
+        }
+        console.log('Haetut vapaat pöydät:', results); // Lisätään lokituloste
+        res.json(results); // Palautetaan vapaat pöydät JSON-muodossa
+    });
 });
+
 
 // Funktio, joka hakee vapaana olevat pöydät halutulle päivämäärälle
 function haeVapaatPoydat(haluttuPaivamaara, callback) {
     // SQL-kysely vapaana olevien pöytien hakemiseksi halutulle päivämäärälle
     const sql = `
-      SELECT p.poyta_id, p.kapasiteetti, p.lisatiedot
-      FROM poytavaraus.poyta p
-      WHERE p.poyta_id NOT IN (
-        SELECT pv.poyta_id
-        FROM mydb.poytavaraus pv
-        JOIN poytavaraus.varaus v ON pv.varaus_id = v.varaus_id
-        WHERE v.paivamaara = ?
+    SELECT p.pöytä_id, p.kapasiteetti, p.lisätiedot
+    FROM poytavaraus.pöytä p
+    WHERE p.pöytä_id NOT IN (
+      SELECT pv.pöytä_id
+      FROM mydb.Pöytävaraus pv
+      JOIN poytavaraus.varaus v ON pv.varaus_id = v.varaus_id
+      WHERE v.päivämäärä = ?
       )
     `;
     
@@ -90,8 +100,6 @@ function haeVapaatPoydat(haluttuPaivamaara, callback) {
       callback(null, results);
     });
 }
-
-
 
 module.exports = {
     haeVapaatPoydat: haeVapaatPoydat
