@@ -59,10 +59,15 @@ app.get('/reservations', (req, res) => {
 
 // Luodaan reitti pöytävarausten tarkistamiselle
 app.post('/tarkista-saatavuus', (req, res) => {
+    console.log("BOODI",req.body)
     const haluttuPaivamaara = req.body.pvm; // Haetaan päivämäärä lomakkeen lähetyksestä
+    const henkilomaara = req.body.henkilomaara; // Haetaan henkilömäärä lomakkeen lähetyksestä
+    console.log('Saapui tarkista-saatavuus-reitille.');
     console.log('Haluttu päivämäärä:', haluttuPaivamaara); // Lisätään lokituloste
+    console.log('Haluttu henkilömäärä:', henkilomaara); // Lisätään lokituloste
+    
 
-    haeVapaatPoydat(haluttuPaivamaara, (error, results) => {
+    haeVapaatPoydat(haluttuPaivamaara, henkilomaara, (error, results) => {
         if (error) {
             console.error('Virhe vapaata pöytää haettaessa: ' + error.stack);
             res.status(500).json({ error: 'Virhe vapaata pöytää haettaessa' });
@@ -74,9 +79,10 @@ app.post('/tarkista-saatavuus', (req, res) => {
 });
 
 
-// Funktio, joka hakee vapaana olevat pöydät halutulle päivämäärälle
-function haeVapaatPoydat(haluttuPaivamaara, callback) {
-    // SQL-kysely vapaana olevien pöytien hakemiseksi halutulle päivämäärälle
+// Funktio, joka hakee vapaana olevat pöydät halutulle päivämäärälle ja henkilömäärälle
+function haeVapaatPoydat(haluttuPaivamaara, henkilomaara, callback) {
+    // SQL-kysely vapaana olevien pöytien hakemiseksi halutulle päivämäärälle ja henkilömäärälle
+    console.log("jeps",haluttuPaivamaara, henkilomaara);
     const sql = `
     SELECT p.pöytä_id, p.kapasiteetti, p.lisätiedot
     FROM poytavaraus.pöytä p
@@ -86,10 +92,11 @@ function haeVapaatPoydat(haluttuPaivamaara, callback) {
       JOIN poytavaraus.varaus v ON pv.varaus_id = v.varaus_id
       WHERE v.päivämäärä = ?
       )
+      AND p.kapasiteetti >= ?
     `;
     
     // Suoritetaan kysely
-    connection.query(sql, [haluttuPaivamaara], (error, results) => {
+    connection.query(sql, [haluttuPaivamaara, henkilomaara], (error, results) => {
       if (error) {
         console.error('Virhe tietokantakyselyssä: ' + error.stack);
         callback(error, null);
@@ -97,6 +104,7 @@ function haeVapaatPoydat(haluttuPaivamaara, callback) {
       }
   
       // Palautetaan kyselyn tulokset
+
       callback(null, results);
     });
 }
