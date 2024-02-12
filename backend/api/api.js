@@ -1,6 +1,8 @@
 //vaaditaan tarvittavat kirjastot
 const express = require('express');
 const mysql = require('mysql');
+const multer = require('multer');
+const upload = multer();
 
 //luodaan uusi express sovellus
 const app = express();
@@ -58,7 +60,7 @@ app.get('/reservations', (req, res) => {
 });
 
 // Luodaan reitti pöytävarausten tarkistamiselle
-app.post('/tarkista-saatavuus', (req, res) => {
+app.post('/tarkista-saatavuus', upload.array(), (req, res) => {
     console.log("BOODI",req.body)
     const haluttuPaivamaara = req.body.pvm; // Haetaan päivämäärä lomakkeen lähetyksestä
     const henkilomaara = req.body.henkilomaara; // Haetaan henkilömäärä lomakkeen lähetyksestä

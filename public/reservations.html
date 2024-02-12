@@ -72,8 +72,8 @@ const formattedDate = `${day}/${month}/${year}`;
     console.log('Lähetettävä henkilömäärä:', henkilomaara);
 
     const formData = new FormData(this); // Haetaan lomakkeen tiedot
-    formData.append('pvm', formattedDate); // Lisätään päivämäärä FormDataan
-    formData.append('henkilomaara', henkilomaara); // Lisätään henkilömäärä FormDataan
+    //formData.append('pvm', formattedDate); // Lisätään päivämäärä FormDataan
+    //formData.append('henkilomaara', henkilomaara); // Lisätään henkilömäärä FormDataan
 
     console.log("noniinpä",[...formData.entries()]);
 
