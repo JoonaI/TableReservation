@@ -2,7 +2,7 @@
 const mysql = require('mysql');
 
 //luodaan yhteys tietokantaan:
-const connection = require('./db.js');
+const connection = require('../db.js');
 
 //luodaan käyttäjämalli
 const createUserQuery = `CREATE TABLE IF NOT EXISTS Users (

@@ -2,7 +2,7 @@
 const mysql = require('mysql');
 
 //luodaan yhteys:
-const connection = require('./db.js');
+const connection = require('../db.js');
 
 //luodaan pöytämalli
 const createTableQuery = `CREATE TABLE IF NOT EXISTS Tables (

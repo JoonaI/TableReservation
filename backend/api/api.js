@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(express.static(__dirname + '/..//../public'));
 
 //luodaan yhteys tietokantaan
-const connection = require('./db.js');
+const connection = require('../db.js');
 
 //Luodaan reitti käyttäjätietojen hakuun
 app.get('/users/:id', (req, res) => {
@@ -126,6 +126,27 @@ app.post('/register', (req, res) => {
         } else {
             //Jos rekisteröinti onnistuu, lähetetään onnistumisilmoitus
             res.json({message: 'Rekisteröinti onnistui!'});
+        }
+    });
+});
+
+// Kirjautumisreitti
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+
+    connection.query('SELECT * FROM Users WHERE username = ?', [username], async (error, results) => {
+        if (error) {
+            return res.status(500).json({ message: 'Virhe tietokannan kyselyssä' });
+        }
+        if (results.length > 0) {
+            const comparison = await bcrypt.compare(password, results[0].password);
+            if (comparison) {
+                return res.json({ message: 'Kirjautuminen onnistui!' });
+            } else {
+                return res.status(401).json({ message: 'Väärä salasana' });
+            }
+        } else {
+            return res.status(404).json({ message: 'Käyttäjää ei löydy' });
         }
     });
 });

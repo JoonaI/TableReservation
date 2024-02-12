@@ -2,7 +2,7 @@
 const mysql = require('mysql');
 
 //luodaan yhteys tietokantaan:
-const connection = require('./db.js');
+const connection = require('../db.js');
 
 //luodaan varausmalli
 const createBookingQuery = `CREATE TABLE IF NOT EXISTS Bookings (
