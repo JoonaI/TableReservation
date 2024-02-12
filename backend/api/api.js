@@ -15,12 +15,7 @@ app.use(express.json());
 app.use(express.static(__dirname + '/..//../public'));
 
 //luodaan yhteys tietokantaan
-const connection = mysql.createConnection({
-  host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: 'poytavaraus'
-});
+const connection = require('./db.js');
 
 //Luodaan reitti käyttäjätietojen hakuun
 app.get('/users/:id', (req, res) => {
@@ -134,6 +129,7 @@ app.post('/register', (req, res) => {
         }
     });
 });
+
 //käynnistetään palvelin
 app.listen(3000, () => {
     console.log('Palvelin käynnistetty porttiin 3000');

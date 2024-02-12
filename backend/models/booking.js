@@ -2,12 +2,7 @@
 const mysql = require('mysql');
 
 //luodaan yhteys tietokantaan:
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: '----'
-});
+const connection = require('./db.js');
 
 //luodaan varausmalli
 const createBookingQuery = `CREATE TABLE IF NOT EXISTS Bookings (
