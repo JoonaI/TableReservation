@@ -36,68 +36,79 @@
                 
                 <label for="aika">Aika:</label>
                 <input type="time" id="aika" name="aika" required><br><br>
-
+    
                 <label for="henkilomaara">Henkilömäärä:</label>
                 <input type="number" id="henkilomaara" name="henkilomaara" min="1" required><br><br>
                 <input type="submit" id="tarkista-saatavuus" value="Tarkista saatavuus">
-                <!-- <input type="submit" value="Tee varaus"> -->
             </form>
         </section>
-        <div id="vapaat-poydat"></div>
+        <section id="vapaat-poydat">
+            <h2>Vapaat pöydät</h2>
+            <select id="vapaat-poydat-lista">
+                <!-- Tähän tulee dynaamisesti generoitava lista vapaista pöydistä -->
+                <option disabled selected>Valitse pöytä</option>
+            </select>
+        </section>
     </main>
-
+    
     <footer>
         <p>&copy; 2024 Ravintola Ryhmä C</p>
     </footer>
 
     <script>
         // Estetään lomakkeen oletustoiminto ja lähetetään tiedot AJAX-pyynnöllä
-document.getElementById('varaus-form').addEventListener('submit', function(event) {
-    event.preventDefault(); // Estetään lomakkeen oletustoiminto
+        document.getElementById('varaus-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Estetään lomakkeen oletustoiminto
 
-    const selectedDate = document.getElementById('pvm').value;
-// Muodostetaan päivämäärä Date-objektiksi
-const dateObject = new Date(selectedDate);
-// Haetaan päivämäärän osat
-const day = dateObject.getDate();
-const month = dateObject.getMonth() + 1; // Huomaa, että getMonth() palauttaa kuukauden nollasta alkaen
-const year = dateObject.getFullYear();
-// Muotoillaan päivämäärä haluttuun muotoon (DD/MM/YYYY)
-const formattedDate = `${day}/${month}/${year}`;
+            const selectedDate = document.getElementById('pvm').value;
+            // Muodostetaan päivämäärä Date-objektiksi
+            const dateObject = new Date(selectedDate);
+            // Haetaan päivämäärän osat
+            const day = dateObject.getDate();
+            const month = dateObject.getMonth() + 1; // Huomaa, että getMonth() palauttaa kuukauden nollasta alkaen
+            const year = dateObject.getFullYear();
+            // Muotoillaan päivämäärä haluttuun muotoon (DD/MM/YYYY)
+            const formattedDate = `${day}/${month}/${year}`;
 
+            const henkilomaara = document.getElementById('henkilomaara').value; // Haetaan henkilömäärä
 
-    const henkilomaara = document.getElementById('henkilomaara').value; // Haetaan henkilömäärä
+            console.log('Lähetettävä päivämäärä:', formattedDate);
+            console.log('Lähetettävä henkilömäärä:', henkilomaara);
 
-    console.log('Lähetettävä päivämäärä:', formattedDate);
-    console.log('Lähetettävä henkilömäärä:', henkilomaara);
+            const formData = new FormData(this); // Haetaan lomakkeen tiedot
+            //formData.append('pvm', formattedDate); // Lisätään päivämäärä FormDataan
+            //formData.append('henkilomaara', henkilomaara); // Lisätään henkilömäärä FormDataan
 
-    const formData = new FormData(this); // Haetaan lomakkeen tiedot
-    //formData.append('pvm', formattedDate); // Lisätään päivämäärä FormDataan
-    //formData.append('henkilomaara', henkilomaara); // Lisätään henkilömäärä FormDataan
+            console.log("noniinpä",[...formData.entries()]);
 
-    console.log("noniinpä",[...formData.entries()]);
+            fetch('/tarkista-saatavuus', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Tässä voit käsitellä palautetut tiedot ja päivittää sivun näkymää tarvittaessa
+                console.log(data); // Tulostetaan palautetut tiedot konsoliin
 
-    fetch('/tarkista-saatavuus', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Tässä voit käsitellä palautetut tiedot ja päivittää sivun näkymää tarvittaessa
-        console.log(data); // Tulostetaan palautetut tiedot konsoliin
+                const poytalistaElementti = document.getElementById('vapaat-poydat-lista');
+                
+                // Tyhjennä lista, jos siinä on jo sisältöä
+                poytalistaElementti.innerHTML = '';
 
-        // Tarkistetaan, että data on taulukko ennen kuin käytetään forEach-metodia
-        if (Array.isArray(data)) {
-            data.forEach(poyta => {
-                // Käsittele pöytätietoja tässä
-                console.log(poyta);
+                // Tarkistetaan, että data on taulukko ennen kuin käytetään forEach-metodia
+                if (Array.isArray(data)) {
+                    data.forEach(poyta => {
+                        // Luo alasvetovalikko ja lisää siihen pöytätiedot
+                        const option = document.createElement('option');
+                        option.value = poyta.id;
+                        option.text = `Pöytä: ${poyta.pöytä_id}, Henkilömäärä: ${poyta.kapasiteetti}, Lisätiedot:  ${poyta.lisätiedot}`;
+                        poytalistaElementti.appendChild(option);
+                    });
+                } else {
+                    console.error('Virhe: Palautettu data ei ole taulukko');
+                }
             });
-        } else {
-            console.error('Virhe: Palautettu data ei ole taulukko');
-        }
-    })
-    .catch(error => console.error('Virhe:', error));
-});
+        });
     </script>
 </body>
 </html>
