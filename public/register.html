@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rekisteröidy</title>
 </head>
+
 <body>
 
     <div id="header-placeholder"></div>
-    
+
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             fetch('header.html')
                 .then(response => response.text())
                 .then(data => {
@@ -19,40 +21,55 @@
                 });
         });
     </script>
-    
+
     <main>
         <section id="varaukset-section">
             <h2>Luo tunnukset</h2>
-            
+
             <form id="register-form" method="POST" action="/register">
                 <div class="form-group">
                     <label for="name">Etunimi:</label>
                     <input type="text" id="name" name="etunimi" required>
                 </div>
-    
+
                 <div class="form-group">
                     <label for="lastname">Sukunimi:</label>
                     <input type="text" id="lastname" name="sukunimi" required>
                 </div>
-    
+
                 <div class="form-group">
                     <label for="email">Sähköposti:</label>
                     <input type="email" id="email" name="email" required>
                 </div>
-    
+
                 <div class="form-group">
                     <label for="register-username">Käyttäjänimi:</label>
                     <input type="text" id="register-username" name="username" required>
                 </div>
-    
+
                 <div class="form-group">
                     <label for="register-password">Salasana:</label>
                     <input type="password" id="register-password" name="password" required>
                 </div>
-    
+
                 <button type="submit">Rekisteröidy</button>
             </form>
         </section>
     </main>
+
+
+    <script>
+        document.getElementById('register-form').addEventListener('submit', function(event) {
+            const password = document.getElementById('register-password').value;
+            const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+    
+            if (!passwordRegex.test(password)) {
+                alert('Salasanan on sisällettävä vähintään yksi numero, yksi erityismerkki, yksi iso kirjain, yksi pieni kirjain ja oltava vähintään 8 merkkiä pitkä.');
+                event.preventDefault(); // Estää lomakkeen lähetyksen
+            }
+        });
+    </script>
+    
 </body>
+
 </html>
