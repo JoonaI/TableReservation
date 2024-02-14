@@ -8,24 +8,17 @@
     <title>Varaukset - Ravintola Varaukset</title>
 </head>
 <body>
-    <header>
-        <h1>Ravintola Ryhmä C</h1>
-        <nav>
-            <ul>
-                <li><a href="/" data-page="home">Koti</a></li>
-                <li><a href="/reservations" data-page="reservations">Varaukset</a></li>
-                <li><a href="/contact" data-page="contact">Yhteystiedot</a></li>
-                <li><a href="/register" data-page="register">Rekisteröidy</a></li>
-                <form id="login-form">
-                    <label for="login-username">Käyttäjänimi:</label>
-                    <input type="text" id="login-username" required>   
-                    <label for="login-password">Salasana:</label>
-                    <input type="password" id="login-password" required>         
-                    <button type="submit">Kirjaudu sisään</button>
-                </form>
-            </ul>
-        </nav>
-    </header>
+    <div id="header-placeholder"></div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('header-placeholder').innerHTML = data;
+                });
+        });
+    </script>
 
     <main>
         <section id="Yhteystiedot-section">
