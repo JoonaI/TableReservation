@@ -3,6 +3,9 @@ const express = require('express');
 const mysql = require('mysql');
 const multer = require('multer');
 const upload = multer();
+const bcrypt = require('bcrypt');
+const saltRounds = 10; 
+
 
 //luodaan uusi express sovellus
 const app = express();
@@ -111,23 +114,27 @@ module.exports = {
 };
 
 //Luodaan reitti rekisteröintilomakkeen lähetykselle: 
-app.post('/register', (req, res) => {
+app.post('/register', async (req, res) => {
     const {etunimi, sukunimi, email, username, password} = req.body;
-    console.log('Received data:', {etunimi, sukunimi, email, username, password}); //Tulostetaan konsoliin saadut tiedot tarkistamista varten
-    //Luodaan SQL-kysely joka lisää käyttäjän tietokantaan:
-    const query = `INSERT INTO Users (etunimi, sukunimi, email, username, password) VALUES (?, ?, ?, ?, ?)`;
 
-    //Suoritetaan kysely:
-    connection.query(query, [etunimi, sukunimi, email, username, password], (error, results) => {
-        if (error) {
-            //Jos tulee virhe, lähetetään virheilmoitus
-            console.error(error);
-            res.status(500).json({message: 'Virhe rekisteröinnissä'});
-        } else {
-            //Jos rekisteröinti onnistuu, lähetetään onnistumisilmoitus
-            res.json({message: 'Rekisteröinti onnistui!'});
-        }
-    });
+    try {
+        // Hasheetaan salasana bcryptillä
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        // Suoritetaan kysely ja tallennetaan hasheerattu salasana tietokantaan
+        const query = `INSERT INTO Users (etunimi, sukunimi, email, username, password) VALUES (?, ?, ?, ?, ?)`;
+        connection.query(query, [etunimi, sukunimi, email, username, hashedPassword], (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).json({message: 'Virhe rekisteröinnissä'});
+            } else {
+                res.json({message: 'Rekisteröinti onnistui!'});
+            }
+        });
+    } catch (error) {
+        console.error('Salasanan hashauksessa tapahtui virhe:', error);
+        res.status(500).json({message: 'Virhe käyttäjän rekisteröinnissä'});
+    }
 });
 
 // Kirjautumisreitti
@@ -139,13 +146,17 @@ app.post('/login', (req, res) => {
             return res.status(500).json({ message: 'Virhe tietokannan kyselyssä' });
         }
         if (results.length > 0) {
+            // Tarkistetaan, vastaako annettu salasana tietokannassa olevaa hashattua salasanaa
             const comparison = await bcrypt.compare(password, results[0].password);
             if (comparison) {
-                return res.json({ message: 'Kirjautuminen onnistui!' });
+                // Käyttäjä löytyi ja salasana on oikea
+                return res.json({ message: 'Kirjautuminen onnistui!', userId: results[0].id });
             } else {
+                // Väärä salasana
                 return res.status(401).json({ message: 'Väärä salasana' });
             }
         } else {
+            // Käyttäjätunnus ei löydy
             return res.status(404).json({ message: 'Käyttäjää ei löydy' });
         }
     });
