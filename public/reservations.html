@@ -118,11 +118,12 @@
                         option.text = `Pöytä: ${poyta.pöytä_id}, Henkilömäärä: ${poyta.kapasiteetti}, Lisätiedot:  ${poyta.lisätiedot}`;
                         console.log('option: ',option);
                         poytalistaElementti.appendChild(option);  
+                        console.log('data-pöytä_id arvo:', data.pöytä_id);
                         document.getElementById('varaa-nappi').setAttribute('data-pöytä_id', option.value);                     
                     });
-                    } else {
-                        console.error('Virhe: Palautettu data ei ole taulukko');
-                    }
+                } else {
+                    console.error('Virhe: Palautettu data ei ole taulukko');
+                }
 
             });
             //Varaa napin toiminnallisuus
