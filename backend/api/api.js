@@ -103,12 +103,26 @@ function haeVapaatPoydat(haluttuPaivamaara, henkilomaara, callback) {
         callback(error, null);
         return;
       }
-  
       // Palautetaan kyselyn tulokset
-
       callback(null, results);
     });
 }
+
+// Luodaan reitti pöydän varaamiselle
+app.post('/varaa-poyta', (req, res) => {
+    const pöytä_id = req.body.pöytä_id; // Haetaan varaajan valitsema pöytä ID:n perusteella
+
+    // Päivitetään tietokantaan pöytä varatuksi
+    connection.query('UPDATE poytavaraus.pöytä SET on_varattu = 1 WHERE pöytä_id = ?', [pöytä_id], (error, results) => {
+        if (error) {
+            console.error('Virhe pöydän varaamisessa: ' + error.stack);
+            res.status(500).json({ error: 'Pöydän varaaminen epäonnistui' });
+            return;
+        }
+        console.log('Pöytä varattu onnistuneesti.', pöytä_id);
+        res.json({ message: 'Pöytä varattu onnistuneesti' });
+    });
+});
 
 module.exports = {
     haeVapaatPoydat: haeVapaatPoydat
