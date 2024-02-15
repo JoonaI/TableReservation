@@ -106,7 +106,9 @@
                 // Tyhjennä lista, jos siinä on jo sisältöä
                 poytalistaElementti.innerHTML = '';
 
-                // Tarkistetaan, että data on taulukko ennen kuin käytetään forEach-metodia
+                // Tallennetaan käyttäjän valitseman pöydän ID varausnapin datasettiin
+                document.getElementById('varaa-nappi').style.display = 'block';
+                document.getElementById('varaa-nappi').dataset.pöytä_id = ''; // Alustetaan arvo
                 if (Array.isArray(data)) {
                     data.forEach(poyta => {
                         // Luo alasvetovalikko ja lisää siihen pöytätiedot
@@ -115,16 +117,19 @@
                         option.value = poyta.pöytä_id;
                         option.text = `Pöytä: ${poyta.pöytä_id}, Henkilömäärä: ${poyta.kapasiteetti}, Lisätiedot:  ${poyta.lisätiedot}`;
                         console.log('option: ',option);
-                        poytalistaElementti.appendChild(option);
+                        poytalistaElementti.appendChild(option);  
+                        document.getElementById('varaa-nappi').setAttribute('data-pöytä_id', option.value);                     
                     });
-                } else {
-                    console.error('Virhe: Palautettu data ei ole taulukko');
-                }
+                    } else {
+                        console.error('Virhe: Palautettu data ei ole taulukko');
+                    }
+
             });
             //Varaa napin toiminnallisuus
             document.getElementById('varaa-nappi').addEventListener('click', function(event) {
-            event.preventDefault();
-            const varattavaPoytaId = this.dataset.pöytä_id;
+                event.preventDefault();
+                const varattavaPoytaId = this.dataset.pöytä_id;
+                console.log('Pöytä_id ennen pyyntöä:', varattavaPoytaId); 
                 if (varattavaPoytaId) {
                 // Lähetetään AJAX-pyyntö palvelimelle päivittääksemme pöydän varaustietoja
                     console.log('Lähetettävän pöydän ID:', varattavaPoytaId);

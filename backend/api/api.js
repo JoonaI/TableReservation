@@ -111,6 +111,8 @@ function haeVapaatPoydat(haluttuPaivamaara, henkilomaara, callback) {
 
 // Luodaan reitti pöydän varaamiselle
 app.post('/varaa-poyta', (req, res) => {
+    console.log('tarkistetaan pöytä id',req.body);
+    console.log('tarkistetaan tyyppi: ',typeof req.body.poyta_id)
     const pöytä_id = req.body.poyta_id; // Haetaan varaajan valitsema pöytä ID:n perusteella
 
     // Päivitetään tietokantaan pöytä varatuksi
@@ -120,6 +122,7 @@ app.post('/varaa-poyta', (req, res) => {
             res.status(500).json({ error: 'Pöydän varaaminen epäonnistui' });
             return;
         }
+        console.log('results ennen :',results);
         console.log('Pöytä varattu onnistuneesti.', pöytä_id);
         res.json({ message: 'Pöytä varattu onnistuneesti' });
     });
