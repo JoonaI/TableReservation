@@ -74,7 +74,6 @@
             //formData.append('henkilomaara', henkilomaara); // Lisätään henkilömäärä FormDataan
 
             console.log("noniinpä",[...formData.entries()]);
-
             fetch('/tarkista-saatavuus', {
                 method: 'POST',
                 body: formData
@@ -85,15 +84,23 @@
                 console.log(data); // Tulostetaan palautetut tiedot konsoliin
                 
                 const poytalistaElementti = document.getElementById('vapaat-poydat-lista');
-                document.getElementById('vapaat-poydat-lista').addEventListener('change', function() {
-                var valittuPoyta = this.value;
+                document.getElementById('vapaat-poydat-lista').addEventListener('change', function(){
+                    console.log('this',this);
+                    console.log('change eventti käynnistynyt');
+                    const valittuPoyta = this.value;
+                    if(valittuPoyta !==undefined){    
+                console.log('value: ',this.value)
                 if (valittuPoyta !== '') {
-                    document.getElementById('varaa-nappi').style.display = 'block';
+                    console.log('Tarkistetaan id, ennen nappia: ', valittuPoyta);
                     //Tallennetaan käyttäjän valitseman pöydän ID varausnapin datasettiin
-                    document.getElementById('varaa-nappi').dataset.poytaId = valittuPoyta;
+                    document.getElementById('varaa-nappi').dataset.pöytä_id = valittuPoyta;
+                    document.getElementById('varaa-nappi').style.display = 'block';              
                 } else {
-                document.getElementById('varaa-nappi').style.display = 'none';
+                    console.log('Ei valittua pöytää.');
+                    document.getElementById('varaa-nappi').dataset.pöytä_id = ''; // Tyhjennä datasetti
+                    document.getElementById('varaa-nappi').style.display = 'none';
                 }
+            }
             });
                 
                 // Tyhjennä lista, jos siinä on jo sisältöä
@@ -104,8 +111,10 @@
                     data.forEach(poyta => {
                         // Luo alasvetovalikko ja lisää siihen pöytätiedot
                         const option = document.createElement('option');
-                        option.value = poyta.id;
+                        console.log('poytaID :', poyta.pöytä_id);
+                        option.value = poyta.pöytä_id;
                         option.text = `Pöytä: ${poyta.pöytä_id}, Henkilömäärä: ${poyta.kapasiteetti}, Lisätiedot:  ${poyta.lisätiedot}`;
+                        console.log('option: ',option);
                         poytalistaElementti.appendChild(option);
                     });
                 } else {
@@ -115,9 +124,10 @@
             //Varaa napin toiminnallisuus
             document.getElementById('varaa-nappi').addEventListener('click', function(event) {
             event.preventDefault();
-            const varattavaPoytaId = this.dataset.poytaId;
+            const varattavaPoytaId = this.dataset.pöytä_id;
                 if (varattavaPoytaId) {
                 // Lähetetään AJAX-pyyntö palvelimelle päivittääksemme pöydän varaustietoja
+                    console.log('Lähetettävän pöydän ID:', varattavaPoytaId);
                     fetch('/varaa-poyta', {
                         method: 'POST',
                         headers: {

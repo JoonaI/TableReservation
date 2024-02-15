@@ -104,13 +104,14 @@ function haeVapaatPoydat(haluttuPaivamaara, henkilomaara, callback) {
         return;
       }
       // Palautetaan kyselyn tulokset
+      console.log('palvelin results: ',results);
       callback(null, results);
     });
 }
 
 // Luodaan reitti pöydän varaamiselle
 app.post('/varaa-poyta', (req, res) => {
-    const pöytä_id = req.body.pöytä_id; // Haetaan varaajan valitsema pöytä ID:n perusteella
+    const pöytä_id = req.body.poyta_id; // Haetaan varaajan valitsema pöytä ID:n perusteella
 
     // Päivitetään tietokantaan pöytä varatuksi
     connection.query('UPDATE poytavaraus.pöytä SET on_varattu = 1 WHERE pöytä_id = ?', [pöytä_id], (error, results) => {
