@@ -93,6 +93,7 @@ function haeVapaatPoydat(haluttuPaivamaara, henkilomaara, callback) {
       WHERE v.päivämäärä = ?
       )
       AND p.kapasiteetti >= ?
+      AND (p.on_varattu = 0 OR p.on_varattu IS NULL)
     `;
     
     // Suoritetaan kysely
