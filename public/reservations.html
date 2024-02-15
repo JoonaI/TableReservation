@@ -41,6 +41,7 @@
                 <!-- Tähän tulee dynaamisesti generoitava lista vapaista pöydistä -->
                 <option disabled selected>Valitse pöytä</option>
             </select>
+            <button id="varaa-nappi" style="display: none;">Varaa pöytä</button>
         </section>
     </main>
     
@@ -82,8 +83,16 @@
             .then(data => {
                 // Tässä voit käsitellä palautetut tiedot ja päivittää sivun näkymää tarvittaessa
                 console.log(data); // Tulostetaan palautetut tiedot konsoliin
-
+                
                 const poytalistaElementti = document.getElementById('vapaat-poydat-lista');
+                document.getElementById('vapaat-poydat-lista').addEventListener('change', function() {
+                var valittuPoyta = this.value;
+                if (valittuPoyta !== '') {
+                    document.getElementById('varaa-nappi').style.display = 'block';
+                } else {
+                document.getElementById('varaa-nappi').style.display = 'none';
+                }
+                });
                 
                 // Tyhjennä lista, jos siinä on jo sisältöä
                 poytalistaElementti.innerHTML = '';
