@@ -5,6 +5,9 @@ const multer = require('multer');
 const upload = multer();
 const bcrypt = require('bcrypt');
 const saltRounds = 10; 
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = 'salainenAvain'; // muokkaa myöhemmin
+
 
 
 //luodaan uusi express sovellus
@@ -137,11 +140,12 @@ app.post('/register', async (req, res) => {
     const {etunimi, sukunimi, email, username, password} = req.body;
 
     const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
-
+    /*
     if (!passwordRegex.test(password)) {
         return res.status(400).json({ message: 'Salasanan on sisällettävä vähintään yksi numero, yksi erityismerkki, yksi iso kirjain, yksi pieni kirjain ja oltava vähintään 8 merkkiä pitkä.' });
     }
-    
+    */
+   
     try {
         // Hasheetaan salasana bcryptillä
         const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -171,17 +175,16 @@ app.post('/login', (req, res) => {
             return res.status(500).json({ message: 'Virhe tietokannan kyselyssä' });
         }
         if (results.length > 0) {
-            // Tarkistetaan, vastaako annettu salasana tietokannassa olevaa hashattua salasanaa
             const comparison = await bcrypt.compare(password, results[0].password);
             if (comparison) {
-                // Käyttäjä löytyi ja salasana on oikea
-                return res.json({ message: 'Kirjautuminen onnistui!', userId: results[0].id });
+                // Luodaan token
+                const token = jwt.sign({ userId: results[0].id, username: username }, JWT_SECRET, { expiresIn: '1h' });
+                // Palautetaan token käyttäjälle
+                return res.json({ message: 'Kirjautuminen onnistui!', token: token });
             } else {
-                // Väärä salasana
                 return res.status(401).json({ message: 'Väärä salasana' });
             }
         } else {
-            // Käyttäjätunnus ei löydy
             return res.status(404).json({ message: 'Käyttäjää ei löydy' });
         }
     });
