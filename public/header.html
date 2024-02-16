@@ -5,7 +5,7 @@
             <li><a href="index.html">Koti</a></li>
             <li><a href="reservations.html">Varaukset</a></li>
             <li><a href="contact.html">Yhteystiedot</a></li>
-            <li><a href="register.html">Rekisteröidy</a></li>
+            <li><a href="register.html" id="register-link">Rekisteröidy</a></li>
             <li class="user-specific" style="display:none;"><a href="profiili.html">Oma profiili</a></li>
             <li class="user-specific" style="display:none;"><a href="hallintapaneeli.html">Hallintapaneeli</a></li>
             <form id="login-form">
@@ -20,12 +20,14 @@
     </nav>
 </header>
 
+
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const token = localStorage.getItem('token');
         if (token) {
             document.getElementById('login-form').style.display = 'none';
-            document.getElementById('register-link').style.display = 'none';
+            document.getElementById('register-link').style.display = 'none'; 
             const userSpecificElements = document.querySelectorAll('.user-specific');
             userSpecificElements.forEach(elem => elem.style.display = 'block');
             document.getElementById('logout-button').style.display = 'inline-block';
