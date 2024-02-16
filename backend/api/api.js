@@ -115,8 +115,8 @@ function haeVapaatPoydat(haluttuPaivamaara, henkilomaara, callback) {
 // Luodaan reitti pöydän varaamiselle
 app.post('/varaa-poyta', (req, res) => {
     console.log('tarkistetaan pöytä id',req.body);
-    console.log('tarkistetaan tyyppi: ',typeof req.body.poyta_id)
-    const pöytä_id = req.body.poyta_id; // Haetaan varaajan valitsema pöytä ID:n perusteella
+    console.log('tarkistetaan tyyppi: ',typeof req.body.pöytä_id)
+    const pöytä_id = req.body.pöytä_id; // Haetaan varaajan valitsema pöytä ID:n perusteella
 
     // Päivitetään tietokantaan pöytä varatuksi
     connection.query('UPDATE poytavaraus.pöytä SET on_varattu = 1 WHERE pöytä_id = ?', [pöytä_id], (error, results) => {

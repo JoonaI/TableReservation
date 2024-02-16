@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Varaukset - Ravintola Ryhmä C varaukset</title>
 </head>
+
 <body>
     <div id="header-placeholder"></div>
-    
+
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             fetch('header.html')
                 .then(response => response.text())
                 .then(data => {
@@ -26,10 +28,10 @@
             <form id="varaus-form">
                 <label for="pvm">Päivämäärä:</label>
                 <input type="date" id="pvm" name="pvm" required><br><br>
-                
+
                 <label for="aika">Aika:</label>
                 <input type="time" id="aika" name="aika" required><br><br>
-    
+
                 <label for="henkilomaara">Henkilömäärä:</label>
                 <input type="number" id="henkilomaara" name="henkilomaara" min="1" required><br><br>
                 <input type="submit" id="tarkista-saatavuus" value="Tarkista saatavuus">
@@ -44,14 +46,14 @@
             <button id="varaa-nappi" style="display: none;">Varaa pöytä</button>
         </section>
     </main>
-    
+
     <footer>
         <p>&copy; 2024 Ravintola Ryhmä C</p>
     </footer>
 
     <script>
         // Estetään lomakkeen oletustoiminto ja lähetetään tiedot AJAX-pyynnöllä
-        document.getElementById('varaus-form').addEventListener('submit', function(event) {
+        document.getElementById('varaus-form').addEventListener('submit', function (event) {
             event.preventDefault(); // Estetään lomakkeen oletustoiminto
 
             const selectedDate = document.getElementById('pvm').value;
@@ -73,91 +75,79 @@
             //formData.append('pvm', formattedDate); // Lisätään päivämäärä FormDataan
             //formData.append('henkilomaara', henkilomaara); // Lisätään henkilömäärä FormDataan
 
-            console.log("noniinpä",[...formData.entries()]);
+            console.log("noniinpä", [...formData.entries()]);
             fetch('/tarkista-saatavuus', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                // Tässä voit käsitellä palautetut tiedot ja päivittää sivun näkymää tarvittaessa
-                console.log(data); // Tulostetaan palautetut tiedot konsoliin
-                
-                const poytalistaElementti = document.getElementById('vapaat-poydat-lista');
-                document.getElementById('vapaat-poydat-lista').addEventListener('change', function(){
-                    console.log('this',this);
-                    console.log('change eventti käynnistynyt');
-                    const valittuPoyta = this.value;
-                    if(valittuPoyta !==undefined){    
-                console.log('value: ',this.value)
-                if (valittuPoyta !== '') {
-                    console.log('Tarkistetaan id, ennen nappia: ', valittuPoyta);
-                    //Tallennetaan käyttäjän valitseman pöydän ID varausnapin datasettiin
-                    document.getElementById('varaa-nappi').dataset.pöytä_id = valittuPoyta;
-                    document.getElementById('varaa-nappi').style.display = 'block';              
-                } else {
-                    console.log('Ei valittua pöytää.');
-                    document.getElementById('varaa-nappi').dataset.pöytä_id = ''; // Tyhjennä datasetti
-                    document.getElementById('varaa-nappi').style.display = 'none';
-                }
-            }
-            });
-                
-                // Tyhjennä lista, jos siinä on jo sisältöä
-                poytalistaElementti.innerHTML = '';
+                .then(response => response.json())
+                .then(data => {
+                    // Tässä voit käsitellä palautetut tiedot ja päivittää sivun näkymää tarvittaessa
+                    console.log(data); // Tulostetaan palautetut tiedot konsoliin
 
-                // Tallennetaan käyttäjän valitseman pöydän ID varausnapin datasettiin
-                document.getElementById('varaa-nappi').style.display = 'block';
-                document.getElementById('varaa-nappi').dataset.pöytä_id = ''; // Alustetaan arvo
-                if (Array.isArray(data)) {
-                    data.forEach(poyta => {
-                        // Luo alasvetovalikko ja lisää siihen pöytätiedot
-                        const option = document.createElement('option');
-                        console.log('poytaID :', poyta.pöytä_id);
-                        option.value = poyta.pöytä_id;
-                        option.text = `Pöytä: ${poyta.pöytä_id}, Henkilömäärä: ${poyta.kapasiteetti}, Lisätiedot:  ${poyta.lisätiedot}`;
-                        console.log('option: ',option);
-                        poytalistaElementti.appendChild(option);  
-                        console.log('data-pöytä_id arvo:', data.pöytä_id);
-                        document.getElementById('varaa-nappi').setAttribute('data-pöytä_id', option.value);                     
-                    });
-                } else {
-                    console.error('Virhe: Palautettu data ei ole taulukko');
-                }
+                    const poytalistaElementti = document.getElementById('vapaat-poydat-lista');
 
-            });
-            //Varaa napin toiminnallisuus
-            document.getElementById('varaa-nappi').addEventListener('click', function(event) {
-                event.preventDefault();
-                const varattavaPoytaId = this.dataset.pöytä_id;
-                console.log('Pöytä_id ennen pyyntöä:', varattavaPoytaId); 
-                if (varattavaPoytaId) {
-                // Lähetetään AJAX-pyyntö palvelimelle päivittääksemme pöydän varaustietoja
-                    console.log('Lähetettävän pöydän ID:', varattavaPoytaId);
-                    fetch('/varaa-poyta', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ pöytä_id: varattavaPoytaId })
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            alert('Pöytä varattu onnistuneesti!');
-                            // Tässä voit päivittää sivun näkymää tarvittaessa
+                    // Tyhjennä lista, jos siinä on jo sisältöä
+                    poytalistaElementti.innerHTML = '';
+
+                    if (Array.isArray(data)) {
+                        data.forEach(poyta => {
+                            // Luo alasvetovalikko ja lisää siihen pöytätiedot
+                            const option = document.createElement('option');
+                            console.log('poytaID :', poyta.pöytä_id);
+                            option.value = poyta.pöytä_id;
+                            option.text = `Pöytä: ${poyta.pöytä_id}, Henkilömäärä: ${poyta.kapasiteetti}, Lisätiedot:  ${poyta.lisätiedot}`;
+                            console.log('option: ', option);
+                            poytalistaElementti.appendChild(option);
+                        });
+                    } else {
+                        console.error('Virhe: Palautettu data ei ole taulukko');
+                    }
+
+                    // Aseta valitun pöydän ID varausnapin datasettiin, kun valikosta valitaan pöytä
+                    poytalistaElementti.addEventListener('change', function () {
+                        document.getElementById('varaa-nappi').dataset.pöytä_id = this.value;
+                        if (this.value) {
+                            document.getElementById('varaa-nappi').style.display = 'block';
                         } else {
-                            throw new Error('Pöydän varaaminen epäonnistui.');
+                            document.getElementById('varaa-nappi').style.display = 'none';
                         }
-                })
-                .catch(error => {
-                    console.error('Virhe:', error);
-                    alert('Pöydän varaaminen epäonnistui. Ole hyvä ja yritä uudelleen.');
+                    });
+
+                    // Varaa napin toiminnallisuus
+                    document.getElementById('varaa-nappi').addEventListener('click', function (event) {
+                        event.preventDefault();
+                        const varattavaPoytaId = this.dataset.pöytä_id;
+                        console.log('Pöytä_id ennen pyyntöä:', varattavaPoytaId);
+                        if (varattavaPoytaId) {
+                            // Lähetetään AJAX-pyyntö palvelimelle päivittääksemme pöydän varaustietoja
+                            console.log('Lähetettävän pöydän ID:', varattavaPoytaId);
+                            fetch('/varaa-poyta', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ pöytä_id: varattavaPoytaId })
+                            })
+                                .then(response => {
+                                    if (response.ok) {
+                                        alert('Pöytä varattu onnistuneesti!');
+                                        // Tässä voit päivittää sivun näkymää tarvittaessa
+                                    } else {
+                                        throw new Error('Pöydän varaaminen epäonnistui.');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Virhe:', error);
+                                    alert('Pöydän varaaminen epäonnistui. Ole hyvä ja yritä uudelleen.');
+                                });
+                        } else {
+                            alert('Valitse pöytä ennen varauksen tekemistä.');
+                        }
+                    });
                 });
-            } else {
-                alert('Valitse pöytä ennen varauksen tekemistä.');
-            }
         });
-    });
     </script>
 </body>
+
 </html>
