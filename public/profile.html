@@ -37,31 +37,48 @@
 
     <!-- Skriptit -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Funktio varauksien lataamiseen ja näyttämiseen
-            function lataaVaraukset() {
-                fetch('/api/reservations')
-                    .then(response => response.json())
-                    .then(varaukset => {
-                        const varauksetLista = document.getElementById('varaukset-lista');
-                        varauksetLista.innerHTML = ''; // Tyhjennetään lista ensin
 
-                        // Lisätään jokainen varaus listaan
-                        varaukset.forEach(varaus => {
-                            const li = document.createElement('li');
-                            li.textContent = `Päivämäärä: ${varaus.paivamaara}, Henkilömäärä: ${varaus.henkilomaara}, Pöytänumero: ${varaus.poytanumero}`;
-                            varauksetLista.appendChild(li);
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Virhe latauksessa:', error);
+        // Oletetaan, että kirjautumisen yhteydessä tallennetut käyttäjätiedot sisältävät käyttäjän ID:n
+        const userId = 'kirjautuneen_käyttäjän_id'; // Korvataan tämä dynaamisesti haetulla arvolla
+
+        function haeVaraukset() {
+            fetch(`/api/polku/käyttäjän_varauksiin/${userId}`) // Oikea API-reitti tähän
+                .then(response => response.json())
+                .then(varaukset => {
+                    const varauksetLista = document.getElementById('varaukset-lista');
+                    varauksetLista.innerHTML = ''; // Tyhjennä lista ennen uusien varauksien lisäämistä
+                    varaukset.forEach(varaus => {
+                        varauksetLista.innerHTML += `
+                            <li>
+                                Varaus ID: ${varaus.id}, Päivämäärä: ${varaus.päivämäärä}, Aika: ${varaus.aika}, Henkilömäärä: ${varaus.henkilomäärä}
+                                <button onclick="muokkaaVarausta(${varaus.id})">Muokkaa</button>
+                                <button onclick="poistaVaraus(${varaus.id})">Poista</button>
+                            </li>`;
                     });
-            }
-
-            // Kutsu lataaVaraukset funktiota sivun latautuessa
-            lataaVaraukset();
-        });
+                })
+                .catch(error => console.error('Virhe haettaessa varauksia:', error));
+        }
+    
+        function muokkaaVarausta(varausId) {
+            // Tähän voisi lisätä toiminnallisuuden varauksen tietojen muokkaamiseen.
+            // Esimerkiksi avata modal-ikkunan, jossa voi muokata varauksen tietoja ja sitten lähettää päivitetyt tiedot palvelimelle.
+            console.log(`Muokkaa varausta ID: ${varausId}`);
+        }
+    
+        function poistaVaraus(varausId) {
+            fetch(`/api/polku/poista_varaus/${varausId}`, { method: 'DELETE' }) // Oikea API-reitti tähän
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Varaus poistettu onnistuneesti');
+                        haeVaraukset(); // Päivitä varauslista
+                    } else {
+                        console.error('Virhe poistettaessa varausta');
+                    }
+                })
+                .catch(error => console.error('Poisto epäonnistui:', error));
+        }
     </script>
+    
 
     <!-- Alatunniste -->
     <footer>
