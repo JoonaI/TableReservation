@@ -60,6 +60,11 @@ app.get('/reservations', (req, res) => {
     res.sendFile(path.join(__dirname, '/..//../public/reservations.html'));
 });
 
+//luodaan reitti hallintapaneeli sivulle siirtymiselle
+app.get('/hallintapaneeli', (req, res) => {
+    res.sendFile(path.join(__dirname, '/..//../public/hallintapaneeli.html'));
+});
+
 // Luodaan reitti pöytävarausten tarkistamiselle
 app.post('/tarkista-saatavuus', upload.array(), (req, res) => {
     console.log("BOODI",req.body)
