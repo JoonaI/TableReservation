@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oma profiili</title>
+    
+</head>
+
+<body>
+
+    <!-- Päänavigaatio -->
+    <div id="header-placeholder"></div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('header-placeholder').innerHTML = data;
+                });
+        });
+    </script>
+
+    <!-- Pääsisältö -->
+    <main id="main-content">
+        <section id="profile">
+            <h2>Oma profiili</h2>
+            <p class="alaotsikko">Tällä sivulla voit tarkastella, muokata tai poistaa omia varauksia.</p>
+            <ul id="varaukset-lista">
+                <!-- Varaukset lisätään tähän -->
+              </ul>
+        </section>
+    </main>
+
+    <!-- Skriptit -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Funktio varauksien lataamiseen ja näyttämiseen
+            function lataaVaraukset() {
+                fetch('/api/reservations')
+                    .then(response => response.json())
+                    .then(varaukset => {
+                        const varauksetLista = document.getElementById('varaukset-lista');
+                        varauksetLista.innerHTML = ''; // Tyhjennetään lista ensin
+
+                        // Lisätään jokainen varaus listaan
+                        varaukset.forEach(varaus => {
+                            const li = document.createElement('li');
+                            li.textContent = `Päivämäärä: ${varaus.paivamaara}, Henkilömäärä: ${varaus.henkilomaara}, Pöytänumero: ${varaus.poytanumero}`;
+                            varauksetLista.appendChild(li);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Virhe latauksessa:', error);
+                    });
+            }
+
+            // Kutsu lataaVaraukset funktiota sivun latautuessa
+            lataaVaraukset();
+        });
+    </script>
+
+    <!-- Alatunniste -->
+    <footer>
+        <p>&copy; 2024 Ravintola Ryhmä C</p>
+    </footer>
+
+</body>
+
+</html>
