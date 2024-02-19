@@ -14,6 +14,7 @@
                 <label for="login-password">Salasana:</label>
                 <input type="password" id="login-password" required>         
                 <button type="submit">Kirjaudu sisään</button>
+                <button type="button" id="reset-password-button">Resetoi salasana</button>
             </form>
             <button id="logout-button" style="display:none;">Kirjaudu ulos</button>
         </ul>
@@ -70,4 +71,33 @@
             });
         }
     });
+
+    // Salasanan resetointi
+    document.getElementById('reset-password-button').addEventListener('click', function() {
+        const username = document.getElementById('login-username').value;
+        if (!username) {
+            alert('Anna käyttäjänimi');
+            return;
+        }
+        // Lähetetään POST-pyyntö /reset-password -reitille
+        fetch('/reset-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username: username }),
+        }) // Käsitellään vastaus
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Salasanan resetointi onnistui');
+            } else {
+                alert('Salasanan resetointi epäonnistui: ' + (data.message || 'Tuntematon virhe'));
+            }
+        }) // Käsitellään mahdollinen virhe
+        .catch(error => {
+            console.error('Salasanan resetoinnissa tapahtui virhe:', error);
+        });
+    });
+
 </script>

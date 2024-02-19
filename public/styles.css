@@ -58,6 +58,16 @@ button {
     cursor: pointer;
 }
 
+#reset-password-button {
+    background-color: #F5CAC3;
+    color: #000000;
+    padding: 8px 10px;
+    margin: 8px 0;
+    border-radius: 30px;
+    border-color: #F5CAC3;
+    cursor: pointer;
+}
+
 #main-content {
     padding: 20px;
     text-align: center;
