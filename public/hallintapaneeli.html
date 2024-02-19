@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ravintolan hallintapaneeli</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            margin-top: 20px;
+        }
+        button {
+            margin: 10px;
+            padding: 5px 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #varaukset, #aukioloajat {
+            margin: 20px auto;
+            width: 80%;
+            text-align: left;
+        }
+        #aukioloajat-container {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        #muokkaa-aukioloaikoja-button {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header-placeholder"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('header-placeholder').innerHTML = data;
+                });
+        });
+    </script>
+
+    <h1>Ravintolan hallintapaneeli</h1>
+
+    <div id="aukioloajat-container">
+        <button id="muokkaa-aukioloaikoja-button" onclick="muokkaaAukioloaikoja()">Muokkaa aukioloaikoja</button>
+        <div id="aukioloajat">
+            <!-- Tähän tulostetaan aukioloajat -->
+        </div>
+    </div>
+
+    <div id="varaukset">
+        <!-- Tähän tulostetaan varaukset  -->
+    </div>
+
+    <script>
+        // Näytä varaukset automaattisesti sivun latautuessa
+        naytaVaraukset();
+
+        function naytaVaraukset() {
+            // Simuloitu varaukset
+            var varaukset = ["Varaus 1", "Varaus 2", "Varaus 3"];
+            document.getElementById("varaukset").innerHTML = "<h2>Varaukset:</h2><ul>";
+            for (var i = 0; i < varaukset.length; i++) {
+                document.getElementById("varaukset").innerHTML += "<li>" + varaukset[i] + " <button onclick='vahvistaVaraus(" + i + ")'>Vahvista</button> <button onclick='muokkaaVaraus(" + i + ")'>Muokkaa</button> <button onclick='peruVaraus(" + i + ")'>Peruuta</button></li>";
+            }
+            document.getElementById("varaukset").innerHTML += "</ul>";
+
+             // Simuloitu aukioloajat
+             var aukioloajat = "Aukioloajat:<br>Maanantai - Perjantai: 10:00 - 22:00<br>Lauantai - Sunnuntai: 12:00 - 22:00";
+            document.getElementById("aukioloajat").innerHTML = "<h2>" + aukioloajat + "</h2>";
+        
+        }
+
+        function vahvistaVaraus(index) {
+            // Tähän voi lisätä koodia varauksen vahvistamiseen
+            alert("Vahvistetaan varaus: " + index);
+        }
+
+        function muokkaaVaraus(index) {
+            // Tähän voi lisätä koodia varauksen muokkaamiseen
+            var uusiVaraus = prompt("Syötä uusi varaus:");
+            if (uusiVaraus !== null) {
+                // Päivitä varaus
+                alert("Varaus " + index + " muokattu: " + uusiVaraus);
+            }
+        }
+
+        function peruVaraus(index) {
+    var varmistus = confirm("Haluatko varmasti peruuttaa tämän varauksen?");
+    if (varmistus) {
+        var varaukset = ["Varaus 1", "Varaus 2", "Varaus 3"]; // Simuloitu varauslista
+        varaukset.splice(index, 1); // Poistaa varauksen varauslistalta
+        // Päivitä varauslista näkymään
+        document.getElementById("varaukset").innerHTML = "<h2>Varaukset:</h2><ul>";
+        for (var i = 0; i < varaukset.length; i++) {
+            document.getElementById("varaukset").innerHTML += "<li>" + varaukset[i] + " <button onclick='vahvistaVaraus(" + i + ")'>Vahvista</button> <button onclick='muokkaaVaraus(" + i + ")'>Muokkaa</button> <button onclick='peruVaraus(" + i + ")'>Peruuta</button></li>";
+        }
+        document.getElementById("varaukset").innerHTML += "</ul>";
+        alert("Varaus on peruutettu.");
+    }
+}
+
+
+        function muokkaaAukioloaikoja() {
+            var uudetAukioloajat = prompt("Syötä uudet aukioloajat:");
+            if (uudetAukioloajat !== null) {
+                document.getElementById("aukioloajat").innerHTML = "<h2>Aukioloajat:</h2><p>" + uudetAukioloajat + "</p>";
+            }
+        }
+
+        
+    </script>
+</body>
+</html>
