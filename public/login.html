@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirjaudu</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body>
+
+    <!-- Päänavigaatio -->
+    <div id="header-placeholder"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('header-placeholder').innerHTML = data;
+                });
+        });
+    </script>
+    <div class="login-container">
+        <h2>Kirjaudu sisään</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Käyttäjänimi:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Salasana:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Kirjaudu</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            fetch('http://localhost:3000/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: username, password: password }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.token) {
+                        alert('Kirjautuminen onnistui!');
+                        localStorage.setItem('token', data.token);
+                        // Ohjaa käyttäjä toiselle sivulle, esimerkiksi profiiliin
+                        window.location.href = 'profile.html';
+                        updateHeaderAfterLogin();
+                    } else {
+                        alert('Kirjautuminen epäonnistui: ' + (data.message || 'Tuntematon virhe'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Kirjautumisessa tapahtui virhe:', error);
+                });
+        });
+
+        function updateHeaderAfterLogin() {
+            // Piilota Kirjaudu ja Rekisteröidy linkit
+            if (document.getElementById('login-link')) {
+                document.getElementById('login-link').style.display = 'none';
+            }
+            if (document.getElementById('register-link')) {
+                document.getElementById('register-link').style.display = 'none';
+            }
+            // Näytä Kirjaudu ulos, Oma profiili ja Hallintapaneeli linkit
+            const userSpecificElements = document.querySelectorAll('.user-specific');
+            userSpecificElements.forEach(elem => elem.style.display = 'block');
+            if (document.getElementById('logout-button')) {
+                document.getElementById('logout-button').style.display = 'inline-block';
+            }
+        }
+    </script>
+</body>
+
+</html>

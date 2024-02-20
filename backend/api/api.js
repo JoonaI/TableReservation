@@ -195,6 +195,11 @@ app.post('/login', (req, res) => {
     });
 });
 
+app.post('/logout', (req, res) => {
+    res.clearCookie('token'); // Poistetaan token evästeestä
+    res.json({ message: 'Uloskirjautuminen onnistui' });
+});
+
 //käynnistetään palvelin
 app.listen(3000, () => {
     console.log('Palvelin käynnistetty porttiin 3000');
