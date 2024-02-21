@@ -43,6 +43,7 @@ app.put('/user/:id', (req, res) => {
 });
 
 const path = require('path');
+const { error } = require('console');
 
 
 // Luodaan reitti rekisteröintisivulle siirtymiseen
@@ -139,6 +140,19 @@ app.post('/varaa-poyta', (req, res) => {
 module.exports = {
     haeVapaatPoydat: haeVapaatPoydat
 };
+
+//Luodaan reitti varattujen pöytien hakemiselle hallintapaneelia varten
+app.get('/varatut-poydat', (req, res) => {
+    //tietokantakysely pöytien hakemiseksi
+    connection.query('SELECT * FROM poytavaraus.pöytä WHERE on_varattu IS NOT NULL', (error, results) => {
+        if (error) {
+            console.error('Virhe tietokantakyselyssä: ' + error.stack);
+            res.status(500).json({ error: 'Pöytien haku epäonnistui' });
+            return;
+        }
+        res.json(results); //palautetaan pöydät JSON-muodossa
+    });
+});
 
 //Luodaan reitti rekisteröintilomakkeen lähetykselle: 
 app.post('/register', async (req, res) => {

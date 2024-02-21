@@ -60,28 +60,34 @@
         </div>
     </div>
 
-    <div id="varaukset">
+    <div id="poydat">
         <!-- Tähän tulostetaan varaukset  -->
     </div>
 
     <script>
         // Näytä varaukset automaattisesti sivun latautuessa
-        naytaVaraukset();
+        document.addEventListener("DOMContentLoaded", function () {
+            //haetaan varatut pöydät palvelimelta
+            fetch('/varatut-poydat')
+                .then(response => response.json())
+                .then(data => {
+                    //tulostetaan varatut pöydät
+                    tulostaPoydat(data);
+                })
+                .catch(error => {
+                    console.error('Virhe pöytien hakemisessa: ', error);
+                });
+        });
 
-        function naytaVaraukset() {
-            // Simuloitu varaukset
-            var varaukset = ["Varaus 1", "Varaus 2", "Varaus 3"];
-            document.getElementById("varaukset").innerHTML = "<h2>Varaukset:</h2><ul>";
-            for (var i = 0; i < varaukset.length; i++) {
-                document.getElementById("varaukset").innerHTML += "<li>" + varaukset[i] + " <button onclick='vahvistaVaraus(" + i + ")'>Vahvista</button> <button onclick='muokkaaVaraus(" + i + ")'>Muokkaa</button> <button onclick='peruVaraus(" + i + ")'>Peruuta</button></li>";
-            }
-            document.getElementById("varaukset").innerHTML += "</ul>";
+        function tulostaPoydat(poydat){
+            const poydatContainer = document.getElementById('poydat');
+            poydatContainer.innerHTML = '<h2>Varatut pöydät:</h2><ul>';
+            poydat.forEach(poyta => {
+            poydatContainer.innerHTML += `<li>Pöytä ID: ${poyta.pöytä_id}, Kapasiteetti: ${poyta.kapasiteetti}, Lisätiedot: ${poyta.lisätiedot}</li>`;
+            });
+            poydatContainer.innerHTML += '</ul>';
+}
 
-             // Simuloitu aukioloajat
-             var aukioloajat = "Aukioloajat:<br>Maanantai - Perjantai: 10:00 - 22:00<br>Lauantai - Sunnuntai: 12:00 - 22:00";
-            document.getElementById("aukioloajat").innerHTML = "<h2>" + aukioloajat + "</h2>";
-        
-        }
 
         function vahvistaVaraus(index) {
             // Tähän voi lisätä koodia varauksen vahvistamiseen
