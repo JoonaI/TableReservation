@@ -28,7 +28,7 @@
     <button id="logout-button">Kirjaudu ulos</button>
 </header>
 
-
+<div id="modal-container"></div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -96,4 +96,21 @@
         // Päivitä navigointipalkki kirjautumisen jälkeen
         updateHeaderAfterLogin(); // Lisää tämä rivi
     });
+
+    //Salasanan resetointi
+    document.getElementById('reset-password-button').addEventListener('click', function() {
+        fetch('reset-password-modal.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('modal-container').innerHTML = html;
+                document.getElementById('reset-password-modal').style.display = 'block';
+                document.getElementById('close-modal').addEventListener('click', function() {
+                    document.getElementById('reset-password-modal').style.display = 'none';
+                });
+            })
+            .catch(error => {
+                console.error('Virhe ladattaessa modaalista ikkunaa:', error);
+            });
+    });
+
 </script>
