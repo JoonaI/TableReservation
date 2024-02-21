@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kirjaudu</title>
     <link rel="stylesheet" href="../styles.css">
+    <script src="common.js" defer></script>
 </head>
 
 <body>
@@ -19,6 +20,7 @@
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('header-placeholder').innerHTML = data;
+                    updateHeaderAfterLogin();
                 });
         });
     </script>
@@ -65,22 +67,6 @@
                     console.error('Kirjautumisessa tapahtui virhe:', error);
                 });
         });
-
-        function updateHeaderAfterLogin() {
-            // Piilota Kirjaudu ja Rekisteröidy linkit
-            if (document.getElementById('login-link')) {
-                document.getElementById('login-link').style.display = 'none';
-            }
-            if (document.getElementById('register-link')) {
-                document.getElementById('register-link').style.display = 'none';
-            }
-            // Näytä Kirjaudu ulos, Oma profiili ja Hallintapaneeli linkit
-            const userSpecificElements = document.querySelectorAll('.user-specific');
-            userSpecificElements.forEach(elem => elem.style.display = 'block');
-            if (document.getElementById('logout-button')) {
-                document.getElementById('logout-button').style.display = 'inline-block';
-            }
-        }
     </script>
 </body>
 

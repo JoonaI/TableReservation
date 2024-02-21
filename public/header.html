@@ -1,3 +1,6 @@
+
+<script src="common.js" defer></script>
+
 <header>
     <h1>Ravintola Ryhmä C</h1>
     <nav>
@@ -37,7 +40,7 @@
             document.getElementById('register-link').style.display = 'none';
             document.querySelectorAll('.user-specific').forEach(elem => elem.style.display = 'block');
             document.getElementById('logout-button').style.display = 'inline-block';
-            updateHeaderAfterLogin(); // Lisää tämä rivi
+            updateHeaderAfterLogin(); 
         } else {
             // Käyttäjä ei ole kirjautunut sisään, näytä kirjautumislomake
             document.getElementById('login-form').style.display = 'block';
