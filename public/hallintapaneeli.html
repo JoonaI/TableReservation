@@ -115,14 +115,34 @@
             alert("Vahvistetaan varaus: " + index);
         }
 
-        function muokkaaVaraus(index) {
-            // Tähän voi lisätä koodia varauksen muokkaamiseen
-            var uusiVaraus = prompt("Syötä uusi varaus:");
-            if (uusiVaraus !== null) {
-                // Päivitä varaus
-                alert("Varaus " + index + " muokattu: " + uusiVaraus);
-            }
-        }
+        function muokkaaVarausta(index) {
+    var poyta_id = prompt("Syötä pöytä_id:");
+    var kapasiteetti = prompt("Syötä kapasiteetti:");
+    var lisatiedot = prompt("Syötä lisätiedot:");
+    
+    if (poyta_id !== null && kapasiteetti !== null && lisatiedot !== null) {
+        // Päivitä varaus palvelimella
+        fetch('/muokkaa-varausta/' + index, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                poyta_id: poyta_id,
+                kapasiteetti: kapasiteetti,
+                lisatiedot: lisatiedot
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            // Voit päivittää tarvittaessa käyttöliittymää
+        })
+        .catch(error => {
+            console.error('Virhe varauksen muokkauksessa: ', error);
+        });
+    }
+}
 
         function peruVaraus(pöytä_id) {
             var varmistus = confirm("Haluatko varmasti peruuttaa tämän varauksen?");

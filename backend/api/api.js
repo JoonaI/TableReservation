@@ -155,6 +155,22 @@ app.get('/varatut-poydat', (req, res) => {
     });
 });
 
+// Luodaan reitti varauksen muokkaamiselle
+app.put('/muokkaa-varausta/:poytaID', (req, res) => {
+    const poytaID = req.params.poytaID;
+    const { poyta_id, kapasiteetti, lisatiedot } = req.body; // Uudet tiedot pöydälle
+
+    // Päivitetään tietokantaan varaus
+    connection.query('UPDATE poytavaraus.pöytä SET pöytä_id = ?, kapasiteetti = ?, lisätiedot = ? WHERE pöytä_id = ?', [poyta_id, kapasiteetti, lisatiedot, poytaID], (error, results) => {
+        if (error) {
+            console.error('Virhe varauksen muokkaamisessa: ' + error.stack);
+            res.status(500).json({ error: 'Varauksen muokkaaminen epäonnistui' });
+            return;
+        }
+        res.json({ message: 'Varaus päivitetty' });
+    });
+});
+
 // Luodaan reitti varauksen peruuttamiselle
 app.post('/peruuta-varaus/:poytaID', (req, res) => {
     const poytaID = req.params.poytaID;
