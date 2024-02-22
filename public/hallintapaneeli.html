@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="styles.css">
@@ -13,29 +14,36 @@
             margin: 0;
             padding: 0;
         }
+
         h1 {
             margin-top: 20px;
         }
+
         button {
             margin: 10px;
             padding: 5px 10px;
             font-size: 16px;
             cursor: pointer;
         }
-        #varaukset, #aukioloajat {
+
+        #varaukset,
+        #aukioloajat {
             margin: 20px auto;
             width: 80%;
             text-align: left;
         }
+
         #aukioloajat-container {
             text-align: right;
             margin-bottom: 20px;
         }
+
         #muokkaa-aukioloaikoja-button {
             margin-bottom: 10px;
         }
     </style>
 </head>
+
 <body>
 
     <div id="header-placeholder"></div>
@@ -79,14 +87,27 @@
                 });
         });
 
-        function tulostaPoydat(poydat){
+        function tulostaPoydat(poydat) {
+            console.log(poydat);
             const poydatContainer = document.getElementById('poydat');
             poydatContainer.innerHTML = '<h2>Varatut pöydät:</h2><ul>';
-            poydat.forEach(poyta => {
-            poydatContainer.innerHTML += `<li>Pöytä ID: ${poyta.pöytä_id}, Kapasiteetti: ${poyta.kapasiteetti}, Lisätiedot: ${poyta.lisätiedot}</li>`;
-            });
+            if (Array.isArray(poydat)) {
+                poydat.forEach(poyta => {
+                    poydatContainer.innerHTML +=
+                        `<li>
+                        Pöytä ID: ${poyta.pöytä_id}, 
+                        Kapasiteetti: ${poyta.kapasiteetti}, 
+                        Lisätiedot: ${poyta.lisätiedot}
+                        <button onclick='vahvistaVaraus(${poyta.pöytä_id})'>Vahvista varaus </button> 
+                        <button onclick='muokkaaVarausta(${poyta.pöytä_id})'>Muokkaa varausta </button>
+                        <button onclick='peruVaraus(${poyta.pöytä_id})'>Peru varaus </button>
+                        </li>`;
+                });
+            } else {
+                console.error('Pöytätiedot eivät ole taulukossa');
+            }
             poydatContainer.innerHTML += '</ul>';
-}
+        }
 
 
         function vahvistaVaraus(index) {
@@ -103,20 +124,33 @@
             }
         }
 
-        function peruVaraus(index) {
-    var varmistus = confirm("Haluatko varmasti peruuttaa tämän varauksen?");
-    if (varmistus) {
-        var varaukset = ["Varaus 1", "Varaus 2", "Varaus 3"]; // Simuloitu varauslista
-        varaukset.splice(index, 1); // Poistaa varauksen varauslistalta
-        // Päivitä varauslista näkymään
-        document.getElementById("varaukset").innerHTML = "<h2>Varaukset:</h2><ul>";
-        for (var i = 0; i < varaukset.length; i++) {
-            document.getElementById("varaukset").innerHTML += "<li>" + varaukset[i] + " <button onclick='vahvistaVaraus(" + i + ")'>Vahvista</button> <button onclick='muokkaaVaraus(" + i + ")'>Muokkaa</button> <button onclick='peruVaraus(" + i + ")'>Peruuta</button></li>";
+        function peruVaraus(pöytä_id) {
+            var varmistus = confirm("Haluatko varmasti peruuttaa tämän varauksen?");
+            if (varmistus) {
+                fetch('/peruuta-varaus/' + pöytä_id, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ pöytä_id: pöytä_id })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        //haetaan päivitetty lista varatuista pöydistä
+                        fetch('/varatut-poydat')
+                            .then(response => response.json())
+                            .then(poydat => {
+                                //päivitetään varatut pöydät
+                                tulostaPoydat(poydat);
+                            });
+                    })
+                    .catch(error => {
+                        console.error('Virhe varauksen perumisessa: ', error);
+                    });
+                alert("Varaus pöydältä: " + pöytä_id + " on peruutettu.");
+            }
         }
-        document.getElementById("varaukset").innerHTML += "</ul>";
-        alert("Varaus on peruutettu.");
-    }
-}
 
 
         function muokkaaAukioloaikoja() {
@@ -126,7 +160,8 @@
             }
         }
 
-        
+
     </script>
 </body>
+
 </html>

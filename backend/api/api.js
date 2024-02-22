@@ -1,5 +1,6 @@
 //vaaditaan tarvittavat kirjastot
 const express = require('express');
+const router = express.Router();
 const mysql = require('mysql');
 const multer = require('multer');
 const upload = multer();
@@ -150,9 +151,25 @@ app.get('/varatut-poydat', (req, res) => {
             res.status(500).json({ error: 'Pöytien haku epäonnistui' });
             return;
         }
+        console.log('Palautetut pöydät: ', results);
         res.json(results); //palautetaan pöydät JSON-muodossa
     });
 });
+
+// Luodaan reitti varauksen peruuttamiselle
+app.post('/peruuta-varaus/:poytaID', (req, res) => {
+    const poytaID = req.params.poytaID;
+    // Päivitetään tietokantaan pöytä vapaaksi
+    connection.query('UPDATE poytavaraus.pöytä SET on_varattu = NULL WHERE pöytä_id = ?', [poytaID], (error, results) => {
+        if (error) {
+            console.error('Virhe varauksen peruuttamisessa: ' + error.stack);
+            res.status(500).json({ error: 'Varauksen peruuttaminen epäonnistui' });
+            return;
+        }
+        res.json({ message: 'Varaus on peruutettu' });
+    });
+});
+
 
 //Luodaan reitti rekisteröintilomakkeen lähetykselle: 
 app.post('/register', async (req, res) => {
