@@ -56,6 +56,12 @@
                     document.getElementById('header-placeholder').innerHTML = data;
                     updateHeaderAfterLogin();
                 });
+             // Delegoi kuuntelija document-tasolle ja tarkista, onko klikattu elementti reset-password-button
+             document.addEventListener('click', function(event) {
+                if (event.target.id === 'reset-password-button') {
+                    window.location.href = 'reset-password-page.html';
+                }
+            }); 
         });
     </script>
 
