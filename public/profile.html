@@ -66,6 +66,7 @@
 
                 <button type="submit">Muokkaa tietoja</button>
             </form>
+            <h2>Omat varaukset</h2>
             <ul id="varaukset-lista">
                 <!-- Varaukset lisätään tähän -->
               </ul>
@@ -75,9 +76,33 @@
     <!-- Skriptit -->
     <script>
 
-        // Oletetaan, että kirjautumisen yhteydessä tallennetut käyttäjätiedot sisältävät käyttäjän ID:n
-        const userId = 'kirjautuneen_käyttäjän_id'; // Korvataan tämä dynaamisesti haetulla arvolla
+        document.addEventListener('DOMContentLoaded', function() {
+            // Kutsu haeVaraukset funktiota kun sivu on täysin ladattu
+             haeVaraukset();
+        });
 
+        function haeVaraukset() {
+            setTimeout(() => {
+                // Oletetaan, että tämä on palvelimelta saatu vastaus
+                const mockVaraukset = [
+                { id: 1, päivämäärä: '2024-02-27', aika: '18:00', henkilomäärä: 4 },
+                { id: 2, päivämäärä: '2024-02-28', aika: '19:00', henkilomäärä: 2 }
+                ];
+
+                const varauksetLista = document.getElementById('varaukset-lista');
+                varauksetLista.innerHTML = '';
+                mockVaraukset.forEach(varaus => {
+                    varauksetLista.innerHTML += `
+                        <li>
+                            Varaus ID: ${varaus.id}, Päivämäärä: ${varaus.päivämäärä}, Aika: ${varaus.aika}, Henkilömäärä: ${varaus.henkilomäärä}
+                            <button onclick="muokkaaVarausta(${varaus.id})">Muokkaa</button>
+                            <button onclick="poistaVaraus(${varaus.id})">Poista</button>
+                        </li>`;
+                });
+            }, 1000); // Simuloi 1 sekunnin verkkoviivettä
+        }
+
+        /*
         function haeVaraukset() {
             fetch(`/varausket`) // Oikea API-reitti tähän
                 .then(response => response.json())
@@ -99,7 +124,6 @@
         function muokkaaVarausta(varausId) {
             // Tähän voisi lisätä toiminnallisuuden varauksen tietojen muokkaamiseen.
             // Esimerkiksi avata modal-ikkunan, jossa voi muokata varauksen tietoja ja sitten lähettää päivitetyt tiedot palvelimelle.
-            console.log(`Muokkaa varausta ID: ${varausId}`);
         }
     
         function poistaVaraus(varausId) {

@@ -13,6 +13,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #ffffff;
+    height: 100%;
 }
 
 /* Headerin tyylittely */
@@ -279,7 +280,6 @@ footer {
     color: #000000;
     text-align: center;
     padding: 10px;
-    position: fixed;
-    bottom: 0;
+    position: relative;
     width: 100%;
 }
