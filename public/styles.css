@@ -122,7 +122,7 @@ button {
 }
 
 /* Tästä alkaa rekisteröintisivun muotoilut, samassa myös kirjaudu sisään sivun muotoiluja */
-form#register-form, form#login-form {
+form#register-form, form#login-form, form#reset-password-form {
     max-width: 400px;
     margin: 0 auto;
     padding: 20px;
@@ -184,6 +184,14 @@ form#login-form input[type="password"] {
 
 form#login-form button[type="submit"]:hover {
     background-color: #d49c42;
+}
+
+form#reset-password-form input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    box-sizing: border-box;
 }
 
 /* Tästä alkaa profiilisivun muotoilut */
