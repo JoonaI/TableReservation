@@ -36,7 +36,36 @@
     <main id="main-content">
         <section id="profile">
             <h2>Oma profiili</h2>
-            <p class="alaotsikko">Tällä sivulla voit tarkastella, muokata tai poistaa omia varauksia.</p>
+            <p class="alaotsikko">Tällä sivulla voit muokata tietojasi sekä tarkastella, muokata tai poistaa omia varauksia.</p>
+            <form id="profile-form" method="POST" action="/updateProfile">
+                <div class="form-group">
+                    <label for="name">Etunimi:</label>
+                    <input type="text" id="name" name="etunimi" value="NykyinenEtunimi" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="lastname">Sukunimi:</label>
+                    <input type="text" id="lastname" name="sukunimi" value="NykyinenSukunimi" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Sähköposti:</label>
+                    <input type="email" id="email" name="email" value="nykyinen@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Käyttäjänimi:</label>
+                    <input type="text" id="username" name="username" value="NykyinenKäyttäjänimi" required>
+                </div>
+
+                <!-- Salasanan muokkaus voi vaatia erillisen prosessin, joten se voidaan jättää pois tästä näkymästä -->
+                <!-- <div class="form-group">
+                    <label for="password">Salasana:</label>
+                    <input type="password" id="password" name="password" required>
+                </div> -->
+
+                <button type="submit">Muokkaa tietoja</button>
+            </form>
             <ul id="varaukset-lista">
                 <!-- Varaukset lisätään tähän -->
               </ul>
@@ -50,7 +79,7 @@
         const userId = 'kirjautuneen_käyttäjän_id'; // Korvataan tämä dynaamisesti haetulla arvolla
 
         function haeVaraukset() {
-            fetch(`/api/polku/käyttäjän_varauksiin/${userId}`) // Oikea API-reitti tähän
+            fetch(`/varausket`) // Oikea API-reitti tähän
                 .then(response => response.json())
                 .then(varaukset => {
                     const varauksetLista = document.getElementById('varaukset-lista');
@@ -85,6 +114,23 @@
                 })
                 .catch(error => console.error('Poisto epäonnistui:', error));
         }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Oletetaan, että userId on jollakin tavalla saatavilla, esim. kirjautuneen käyttäjän tietona
+            const userId = 'kirjautuneen_käyttäjän_id';
+
+            fetch(`/users/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                // Aseta haetut arvot lomakkeen kenttiin
+                document.getElementById('name').value = data.etunimi;
+                document.getElementById('lastname').value = data.sukunimi;
+                document.getElementById('email').value = data.email;
+                document.getElementById('username').value = data.username;
+                // Oletetaan, että palvelimen vastauksessa on avaimet etunimi, sukunimi, email, ja username
+            })
+            .catch(error => console.error('Error fetching user data:', error));
+        });
     </script>
     
 

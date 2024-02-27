@@ -1,3 +1,13 @@
+/*
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+*/
+
+/* Resetoi sivun oletusarvot */
 body {
     font-family: "Trebuchet MS", sans-serif;
     margin: 0;
@@ -5,6 +15,7 @@ body {
     background-color: #ffffff;
 }
 
+/* Headerin tyylittely */
 header {
     background-color: #ffffff;
     color: #000000;
@@ -13,11 +24,12 @@ header {
     border-bottom: #f7ede2 20px solid;
 }
 
+/* Sivuston nimen tyylittely */
 header h1 {
     padding-left: 20px;
 }
 
-
+/* Navigaation tyylittely */
 nav ul {
     list-style-type: none;
     margin: 0;
@@ -26,10 +38,12 @@ nav ul {
     background-color: #f7ede2;
 }
 
+/* Navigaation linkkien tyylittely */
 nav ul li {
     float: left;
 }
 
+/* Navigaation linkkien tyylittely */
 nav ul li a {
     display: block;
     color: #000000;
@@ -43,12 +57,13 @@ nav ul li a:hover {
     background-color: #F5CAC3;
 }
 
+/* Kirjautumislomakkeen tyylittely */
 #login-form {
     display: inline;
-    float: left;
-    
+    float: left;  
 }
 
+/* Painikkeiden tyylittely joissa ei ole id:tä */
 button {
     background-color: #f6bd60;
     color: #000000;
@@ -59,7 +74,7 @@ button {
     cursor: pointer;
 }
 
-
+/* Salasanan resetointipainikkeen tyylittely */
 #reset-password-button {
     background-color: #F5CAC3;
     color: #000000;
@@ -69,6 +84,7 @@ button {
     border-color: #F5CAC3;
     cursor: pointer;
 }
+
 
 #main-content {
     padding: 20px;
@@ -80,11 +96,12 @@ button {
     color: #f6bd60;
 }
 
-#varaukset-section {
+#varaukset-section, #register-section {
     padding: 20px;
     text-align: center;
 }
 
+/* Tarkista pöytien saatavuus painikkeen tyylittely */
 #tarkista-saatavuus {
     background-color: #f6bd60;
     color: #000000;
@@ -100,11 +117,150 @@ button {
     text-align: center;
 }
 
+#varaa-nappi {
+    display: block;
+    margin: 0 auto;
+}
+
+/* Tästä alkaa rekisteröintisivun muotoilut, samassa myös kirjaudu sisään sivun muotoiluja */
+form#register-form, form#login-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #faf0ee;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+form#register-form .form-group {
+    margin-bottom: 20px;
+}
+
+form#register-form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+form#register-form input[type="text"],
+form#register-form input[type="email"],
+form#register-form input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    box-sizing: border-box;
+}
+
+form#register-form button[type="submit"], form#login-form button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #f6bd60;
+    border-color: #f6bd60;
+    color: #000000;
+    font-weight: bold;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+form#register-form button[type="submit"]:hover {
+    background-color: #d49c42;
+}
+/* Tähän loppuu rekisteröintisivun muotoilut */
+
+/* Kirjautumissivun muotoilut */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Tästä alkaa profiilisivun muotoilut */
+form#profile-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #faf0ee;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+form#profile-form .form-group {
+    margin-bottom: 20px;
+}
+
+form#profile-form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+form#profile-form input[type="text"],
+form#profile-form input[type="email"],
+form#profile-form input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    box-sizing: border-box;
+}
+
+form#profile-form button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #f6bd60;
+    border-color: #f6bd60;
+    color: #000000;
+    font-weight: bold;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+form#profile-form button[type="submit"]:hover {
+    background-color: #d49c42;
+}
+/* Tähän loppuu profiilisivun muotoilut */
+
+/* Tästä alkaa yhteystietosivun muotoilut */
 #Yhteystiedot-section {
     padding: 20px;
     text-align: center;
 }
 
+.contact-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px; /* Luo tilaa korttien välille */
+    padding: 20px;
+}
+
+.contact-card {
+    background-color: #faf0ee; /* Taustaväri */
+    border: 1px solid #ddd; /* Reunaviiva */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Varjostus */
+    border-radius: 30px; /* Pyöristetyt kulmat */
+    width: 300px; /* Kortin leveys */
+    padding: 20px; /* Sisäinen tila */
+    text-align: left; /* Tekstin tasaus */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animaatioefektit */
+}
+
+.contact-card:hover {
+    transform: translateY(-10px); /* Nostetaan korttia hiiren ollessa päällä */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Voimakkaampi varjostus hiiren ollessa päällä */
+}
+
+.contact-card h3 {
+    color: #000000; /* Otsikon tekstiväri */
+    margin-top: 0;
+}
+
+.contact-card p {
+    color: #666; /* Paragrafin tekstiväri */
+    margin-bottom: 0;
+}
+/* Tähän loppuu yhteystietosivun muotoilut */
+
+/* Footerin tyylittely */
 footer {
     background-color: #f7ede2;
     color: #000000;
