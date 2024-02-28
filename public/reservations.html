@@ -80,26 +80,23 @@
             console.log('Lähetettävä henkilömäärä:', henkilomaara);
 
             const formData = new FormData(this); // Haetaan lomakkeen tiedot
-            //formData.append('pvm', formattedDate); // Lisätään päivämäärä FormDataan
-            //formData.append('henkilomaara', henkilomaara); // Lisätään henkilömäärä FormDataan
 
             // token on tallennettu local storageen:
             const token = localStorage.getItem('token');
 
-            console.log("noniinpä", [...formData.entries()]);
-            fetch('/tarkista-saatavuus', {
-                method: 'POST',
-                body: formData
+            console.log("valitut tiedot: ", [...formData.entries()]);
 
-                /*
             fetch('/tarkista-saatavuus', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}` // Lähetetään token pyynnön mukana
                 },
-                body: JSON.stringify({ pvm, aika, henkilomaara })
-                */
+                body: JSON.stringify({ 
+                pvm: formattedDate, 
+                aika: document.getElementById('aika').value, 
+                henkilomaara: henkilomaara })
+                
 
             })
                 .then(response => response.json())
@@ -148,18 +145,12 @@
                             // Lähetetään AJAX-pyyntö palvelimelle päivittääksemme pöydän varaustietoja
                             console.log('Lähetettävän pöydän ID:', varattavaPoytaId);
 
-                            /*
+                            
                             fetch('/varaa-poyta', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'Authorization': `Bearer ${token}` // Lähetetään token pyynnön mukana
-                                },
-                                */
-                                fetch('/varaa-poyta', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
                                 },
 
                                 body: JSON.stringify({ pöytä_id: varattavaPoytaId })

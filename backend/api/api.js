@@ -91,7 +91,7 @@ app.post('/tarkista-saatavuus', upload.array(), (req, res) => {
 // Funktio, joka hakee vapaana olevat pöydät halutulle päivämäärälle ja henkilömäärälle
 function haeVapaatPoydat(haluttuPaivamaara, henkilomaara, callback) {
     // SQL-kysely vapaana olevien pöytien hakemiseksi halutulle päivämäärälle ja henkilömäärälle
-    console.log("jeps",haluttuPaivamaara, henkilomaara);
+    console.log("halutut tiedot: ",haluttuPaivamaara, henkilomaara);
     const sql = `
     SELECT p.pöytä_id, p.kapasiteetti, p.lisätiedot
     FROM poytavaraus.pöytä p
@@ -121,7 +121,7 @@ function haeVapaatPoydat(haluttuPaivamaara, henkilomaara, callback) {
 // Luodaan reitti pöydän varaamiselle
 app.post('/varaa-poyta', (req, res) => {
 
-    /*
+  
     // tarkastetaan löytyykö tokenia = onko kirjautunut
     const authHeader = req.headers.authorization;
     if (!authHeader) {
@@ -139,7 +139,6 @@ app.post('/varaa-poyta', (req, res) => {
 
     const userId = decoded.userId; // Käyttäjän id saadaan puretusta tokenista
 
-    */
 
     console.log('tarkistetaan pöytä id',req.body);
     console.log('tarkistetaan tyyppi: ',typeof req.body.pöytä_id)
@@ -250,7 +249,7 @@ app.post('/login', (req, res) => {
             const comparison = await bcrypt.compare(password, results[0].password);
             if (comparison) {
                 // Luodaan token
-                const token = jwt.sign({ userId: results[0].id, username: username }, JWT_SECRET, { expiresIn: '1h' });
+                const token = jwt.sign({ userId: results[0].id, username: username }, JWT_SECRET);
                 // Palautetaan token käyttäjälle
                 return res.json({ message: 'Kirjautuminen onnistui!', token: token });
             } else {
