@@ -4,7 +4,7 @@ const mysql = require('mysql');
 const multer = require('multer');
 const upload = multer();
 const bcrypt = require('bcrypt');
-const saltRounds = 10; 
+const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = 'salainenAvain'; // muokkaa myöhemmin
 
@@ -38,7 +38,7 @@ app.put('/user/:id', (req, res) => {
     const updateUser = req.body;
     connection.query('UPDATE Users SET ? WHERE id = ?', [updateUser, userId], (error, results) => {
         if (error) throw error;
-        res.json({message: 'Käyttäjätiedot päivitetty!'});
+        res.json({ message: 'Käyttäjätiedot päivitetty!' });
     });
 });
 
@@ -68,13 +68,13 @@ app.get('/hallintapaneeli', (req, res) => {
 
 // Luodaan reitti pöytävarausten tarkistamiselle
 app.post('/tarkista-saatavuus', upload.array(), (req, res) => {
-    console.log("BOODI",req.body)
+    console.log("BOODI", req.body)
     const haluttuPaivamaara = req.body.pvm; // Haetaan päivämäärä lomakkeen lähetyksestä
     const henkilomaara = req.body.henkilomaara; // Haetaan henkilömäärä lomakkeen lähetyksestä
     console.log('Saapui tarkista-saatavuus-reitille.');
     console.log('Haluttu päivämäärä:', haluttuPaivamaara); // Lisätään lokituloste
     console.log('Haluttu henkilömäärä:', henkilomaara); // Lisätään lokituloste
-    
+
 
     haeVapaatPoydat(haluttuPaivamaara, henkilomaara, (error, results) => {
         if (error) {
@@ -91,7 +91,7 @@ app.post('/tarkista-saatavuus', upload.array(), (req, res) => {
 // Funktio, joka hakee vapaana olevat pöydät halutulle päivämäärälle ja henkilömäärälle
 function haeVapaatPoydat(haluttuPaivamaara, henkilomaara, callback) {
     // SQL-kysely vapaana olevien pöytien hakemiseksi halutulle päivämäärälle ja henkilömäärälle
-    console.log("halutut tiedot: ",haluttuPaivamaara, henkilomaara);
+    console.log("halutut tiedot: ", haluttuPaivamaara, henkilomaara);
     const sql = `
     SELECT p.pöytä_id, p.kapasiteetti, p.lisätiedot
     FROM poytavaraus.pöytä p
@@ -104,17 +104,17 @@ function haeVapaatPoydat(haluttuPaivamaara, henkilomaara, callback) {
       AND p.kapasiteetti >= ?
       AND (p.on_varattu = 0 OR p.on_varattu IS NULL)
     `;
-    
+
     // Suoritetaan kysely
     connection.query(sql, [haluttuPaivamaara, henkilomaara], (error, results) => {
-      if (error) {
-        console.error('Virhe tietokantakyselyssä: ' + error.stack);
-        callback(error, null);
-        return;
-      }
-      // Palautetaan kyselyn tulokset
-      console.log('palvelin results: ',results);
-      callback(null, results);
+        if (error) {
+            console.error('Virhe tietokantakyselyssä: ' + error.stack);
+            callback(error, null);
+            return;
+        }
+        // Palautetaan kyselyn tulokset
+        console.log('palvelin results: ', results);
+        callback(null, results);
     });
 }
 
@@ -139,8 +139,8 @@ app.post('/varaa-poyta', (req, res) => {
     const userId = decoded.userId; // Käyttäjän id saadaan puretusta tokenista
     console.log('Tarkistetaan purkamisen jälkeen saatu käyttäjä id:', userId);
 
-    console.log('tarkistetaan pöytä id',req.body);
-    console.log('tarkistetaan tyyppi: ',typeof req.body.pöytä_id)
+    console.log('tarkistetaan pöytä id', req.body);
+    console.log('tarkistetaan tyyppi: ', typeof req.body.pöytä_id)
 
     const pöytä_id = req.body.pöytä_id; // Haetaan varaajan valitsema pöytä ID:n perusteella
 
@@ -151,34 +151,34 @@ app.post('/varaa-poyta', (req, res) => {
             res.status(500).json({ error: 'Pöydän varaaminen epäonnistui' });
             return;
         }
-        console.log('results ennen :',results);
+        console.log('results ennen :', results);
         console.log('Pöytä varattu onnistuneesti.', pöytä_id);
-       
+
 
         console.log('req.body:', req.body);
 
         // Lisätään varaus tietokantaan
-           
+
         const varausData = {
-        päivämäärä: req.body.pvm,
-        aika: req.body.aika,
-        henkilömäärä: req.body.henkilomaara,
-        user_id: userId,
-        pöytä_id: pöytä_id
-    };
-    connection.query('INSERT INTO varaus SET ?', varausData, (error, results) => {
-        if (error) {
-            console.error('Virhe varauksen lisäämisessä: ' + error.stack);
-            res.status(500).json({ error: 'Varauksen lisääminen epäonnistui' });
-            return;
-        }
-        console.log('Varaus lisätty onnistuneesti.');
-        res.json({ message: 'Pöytä varattu ja varaus lisätty onnistuneesti' });
+            päivämäärä: req.body.pvm,
+            aika: req.body.aika,
+            henkilömäärä: req.body.henkilomaara,
+            user_id: userId,
+            pöytä_id: pöytä_id
+        };
+        connection.query('INSERT INTO varaus SET ?', varausData, (error, results) => {
+            if (error) {
+                console.error('Virhe varauksen lisäämisessä: ' + error.stack);
+                res.status(500).json({ error: 'Varauksen lisääminen epäonnistui' });
+                return;
+            }
+            console.log('Varaus lisätty onnistuneesti.');
+            res.json({ message: 'Pöytä varattu ja varaus lisätty onnistuneesti' });
+        });
     });
+
+
 });
-
-
-    });
 
 module.exports = {
     haeVapaatPoydat: haeVapaatPoydat
@@ -231,7 +231,7 @@ app.post('/peruuta-varaus/:poytaID', (req, res) => {
 
 //Luodaan reitti rekisteröintilomakkeen lähetykselle: 
 app.post('/register', async (req, res) => {
-    const {etunimi, sukunimi, email, username, password} = req.body;
+    const { etunimi, sukunimi, email, username, password } = req.body;
 
     const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
     /*
@@ -239,7 +239,7 @@ app.post('/register', async (req, res) => {
         return res.status(400).json({ message: 'Salasanan on sisällettävä vähintään yksi numero, yksi erityismerkki, yksi iso kirjain, yksi pieni kirjain ja oltava vähintään 8 merkkiä pitkä.' });
     }
     */
-   
+
     try {
         // Hasheetaan salasana bcryptillä
         const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -249,14 +249,14 @@ app.post('/register', async (req, res) => {
         connection.query(query, [etunimi, sukunimi, email, username, hashedPassword], (error, results) => {
             if (error) {
                 console.error(error);
-                res.status(500).json({message: 'Virhe rekisteröinnissä'});
+                res.status(500).json({ message: 'Virhe rekisteröinnissä' });
             } else {
-                res.json({message: 'Rekisteröinti onnistui!'});
+                res.json({ message: 'Rekisteröinti onnistui!' });
             }
         });
     } catch (error) {
         console.error('Salasanan hashauksessa tapahtui virhe:', error);
-        res.status(500).json({message: 'Virhe käyttäjän rekisteröinnissä'});
+        res.status(500).json({ message: 'Virhe käyttäjän rekisteröinnissä' });
     }
 });
 
