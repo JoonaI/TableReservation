@@ -153,11 +153,32 @@ app.post('/varaa-poyta', (req, res) => {
         }
         console.log('results ennen :',results);
         console.log('Pöytä varattu onnistuneesti.', pöytä_id);
-        res.json({ message: 'Pöytä varattu onnistuneesti' });
+       
 
         console.log('req.body:', req.body);
+
+        // Lisätään varaus tietokantaan
+           
+        const varausData = {
+        päivämäärä: req.body.pvm,
+        aika: req.body.aika,
+        henkilömäärä: req.body.henkilomaara,
+        user_id: userId,
+        pöytä_id: pöytä_id
+    };
+    connection.query('INSERT INTO varaus SET ?', varausData, (error, results) => {
+        if (error) {
+            console.error('Virhe varauksen lisäämisessä: ' + error.stack);
+            res.status(500).json({ error: 'Varauksen lisääminen epäonnistui' });
+            return;
+        }
+        console.log('Varaus lisätty onnistuneesti.');
+        res.json({ message: 'Pöytä varattu ja varaus lisätty onnistuneesti' });
     });
 });
+
+
+    });
 
 module.exports = {
     haeVapaatPoydat: haeVapaatPoydat

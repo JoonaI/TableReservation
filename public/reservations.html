@@ -144,17 +144,20 @@
                         if (varattavaPoytaId) {
                             // Lähetetään AJAX-pyyntö palvelimelle päivittääksemme pöydän varaustietoja
                             console.log('Lähetettävän pöydän ID:', varattavaPoytaId);
-
-                            
+                            const pvm = document.getElementById('pvm').value.split('/').reverse().join('-');
                             fetch('/varaa-poyta', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'Authorization': `Bearer ${token}` // Lähetetään token pyynnön mukana
                                 },
-
-                                body: JSON.stringify({ pöytä_id: varattavaPoytaId })
-                            })
+                                
+                                body: JSON.stringify({ pöytä_id: varattavaPoytaId,
+                                    pvm: pvm, 
+                                    aika: document.getElementById('aika').value, 
+                                    henkilomaara: henkilomaara }) 
+                                })
+                            
                                 .then(response => {
                                     if (response.ok) {
                                         alert('Pöytä varattu onnistuneesti!');
