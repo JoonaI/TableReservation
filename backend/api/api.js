@@ -138,7 +138,7 @@ app.post('/varaa-poyta', (req, res) => {
     }
 
     const userId = decoded.userId; // Käyttäjän id saadaan puretusta tokenista
-
+    console.log('Tarkistetaan purkamisen jälkeen saatu käyttäjä id:', userId);
 
     console.log('tarkistetaan pöytä id',req.body);
     console.log('tarkistetaan tyyppi: ',typeof req.body.pöytä_id)
@@ -153,7 +153,23 @@ app.post('/varaa-poyta', (req, res) => {
         }
         console.log('results ennen :',results);
         console.log('Pöytä varattu onnistuneesti.', pöytä_id);
-        res.json({ message: 'Pöytä varattu onnistuneesti' });
+        // Lisätään varaus tietokantaan
+        const varausData = {
+            päivämäärä: req.body.päivämäärä,
+            aika: req.body.aika,
+            henkilömäärä: req.body.henkilömäärä,
+            user_id: userId,
+            pöytä_id: pöytä_id
+        };
+        console.log('varausData: ',varausData);
+        /*connection.query('INSERT INTO varaus SET ?', varausData, (error, results) => {
+            if (error) {
+                console.error('Virhe varauksen lisäämisessä: ' + error.stack);
+                return res.status(500).json({ error: 'Varauksen lisääminen epäonnistui' });
+            }
+            console.log('Varaus lisätty onnistuneesti.');
+            res.json({ message: 'Pöytä varattu ja varaus lisätty onnistuneesti' });
+        });*/
     });
 });
 
@@ -248,8 +264,10 @@ app.post('/login', (req, res) => {
         if (results.length > 0) {
             const comparison = await bcrypt.compare(password, results[0].password);
             if (comparison) {
+                //Tulosta käyttäjän id
+                console.log('Käyttäjän id:', results[0].user_id);
                 // Luodaan token
-                const token = jwt.sign({ userId: results[0].id, username: username }, JWT_SECRET);
+                const token = jwt.sign({ userId: results[0].user_id, username: username }, JWT_SECRET);
                 // Palautetaan token käyttäjälle
                 return res.json({ message: 'Kirjautuminen onnistui!', token: token });
             } else {
