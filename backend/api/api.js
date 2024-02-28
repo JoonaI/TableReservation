@@ -121,7 +121,6 @@ function haeVapaatPoydat(haluttuPaivamaara, henkilomaara, callback) {
 // Luodaan reitti pöydän varaamiselle
 app.post('/varaa-poyta', (req, res) => {
 
-  
     // tarkastetaan löytyykö tokenia = onko kirjautunut
     const authHeader = req.headers.authorization;
     if (!authHeader) {
@@ -142,6 +141,7 @@ app.post('/varaa-poyta', (req, res) => {
 
     console.log('tarkistetaan pöytä id',req.body);
     console.log('tarkistetaan tyyppi: ',typeof req.body.pöytä_id)
+
     const pöytä_id = req.body.pöytä_id; // Haetaan varaajan valitsema pöytä ID:n perusteella
 
     // Päivitetään tietokantaan pöytä varatuksi
@@ -153,23 +153,7 @@ app.post('/varaa-poyta', (req, res) => {
         }
         console.log('results ennen :',results);
         console.log('Pöytä varattu onnistuneesti.', pöytä_id);
-        // Lisätään varaus tietokantaan
-        const varausData = {
-            päivämäärä: req.body.päivämäärä,
-            aika: req.body.aika,
-            henkilömäärä: req.body.henkilömäärä,
-            user_id: userId,
-            pöytä_id: pöytä_id
-        };
-        console.log('varausData: ',varausData);
-        /*connection.query('INSERT INTO varaus SET ?', varausData, (error, results) => {
-            if (error) {
-                console.error('Virhe varauksen lisäämisessä: ' + error.stack);
-                return res.status(500).json({ error: 'Varauksen lisääminen epäonnistui' });
-            }
-            console.log('Varaus lisätty onnistuneesti.');
-            res.json({ message: 'Pöytä varattu ja varaus lisätty onnistuneesti' });
-        });*/
+        res.json({ message: 'Pöytä varattu onnistuneesti' });
     });
 });
 
