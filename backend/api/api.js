@@ -154,6 +154,8 @@ app.post('/varaa-poyta', (req, res) => {
         console.log('results ennen :',results);
         console.log('Pöytä varattu onnistuneesti.', pöytä_id);
         res.json({ message: 'Pöytä varattu onnistuneesti' });
+
+        console.log('req.body:', req.body);
     });
 });
 
