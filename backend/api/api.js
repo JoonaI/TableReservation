@@ -120,6 +120,27 @@ function haeVapaatPoydat(haluttuPaivamaara, henkilomaara, callback) {
 
 // Luodaan reitti pöydän varaamiselle
 app.post('/varaa-poyta', (req, res) => {
+
+    /*
+    // tarkastetaan löytyykö tokenia = onko kirjautunut
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).json({ message: 'Ei tokenia, autorisointi vaaditaan' });
+    }
+
+    const token = authHeader.split(' ')[1]; // Otetaan token "Bearer" -sanasta erilleen
+
+    let decoded;
+    try {
+        decoded = jwt.verify(token, JWT_SECRET);
+    } catch (error) {
+        return res.status(401).json({ message: 'Virheellinen tai vanhentunut token' });
+    }
+
+    const userId = decoded.userId; // Käyttäjän id saadaan puretusta tokenista
+
+    */
+
     console.log('tarkistetaan pöytä id',req.body);
     console.log('tarkistetaan tyyppi: ',typeof req.body.pöytä_id)
     const pöytä_id = req.body.pöytä_id; // Haetaan varaajan valitsema pöytä ID:n perusteella

@@ -20,19 +20,19 @@
                     document.getElementById('header-placeholder').innerHTML = data;
                     updateHeaderAfterLogin();
                 });
-             // Delegoi kuuntelija document-tasolle ja tarkista, onko klikattu elementti reset-password-button
-             document.addEventListener('click', function(event) {
+            // Delegoi kuuntelija document-tasolle ja tarkista, onko klikattu elementti reset-password-button
+            document.addEventListener('click', function (event) {
                 if (event.target.id === 'reset-password-button') {
                     window.location.href = 'reset-password-page.html';
                 }
-            }); 
+            });
         });
     </script>
 
     <main>
         <section id="varaukset-section">
             <h2>Tee pöytävaraus</h2>
-            <p class="alaotsikko">Tällä sivulla pääset tekemään pöytävarauksen!</p>       
+            <p class="alaotsikko">Tällä sivulla pääset tekemään pöytävarauksen!</p>
             <form id="varaus-form">
                 <label for="pvm">Päivämäärä:</label>
                 <input type="date" id="pvm" name="pvm" required><br><br>
@@ -83,10 +83,24 @@
             //formData.append('pvm', formattedDate); // Lisätään päivämäärä FormDataan
             //formData.append('henkilomaara', henkilomaara); // Lisätään henkilömäärä FormDataan
 
+            // token on tallennettu local storageen:
+            const token = localStorage.getItem('token');
+
             console.log("noniinpä", [...formData.entries()]);
             fetch('/tarkista-saatavuus', {
                 method: 'POST',
                 body: formData
+
+                /*
+            fetch('/tarkista-saatavuus', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Lähetetään token pyynnön mukana
+                },
+                body: JSON.stringify({ pvm, aika, henkilomaara })
+                */
+
             })
                 .then(response => response.json())
                 .then(data => {
@@ -126,15 +140,28 @@
                     document.getElementById('varaa-nappi').addEventListener('click', function (event) {
                         event.preventDefault();
                         const varattavaPoytaId = this.dataset.pöytä_id;
+                        // token on tallennettu local storageen:
+                        const token = localStorage.getItem('token');
+
                         console.log('Pöytä_id ennen pyyntöä:', varattavaPoytaId);
                         if (varattavaPoytaId) {
                             // Lähetetään AJAX-pyyntö palvelimelle päivittääksemme pöydän varaustietoja
                             console.log('Lähetettävän pöydän ID:', varattavaPoytaId);
+
+                            /*
                             fetch('/varaa-poyta', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}` // Lähetetään token pyynnön mukana
+                                },
+                                */
+                                fetch('/varaa-poyta', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json'
                                 },
+
                                 body: JSON.stringify({ pöytä_id: varattavaPoytaId })
                             })
                                 .then(response => {
