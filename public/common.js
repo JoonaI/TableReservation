@@ -1,5 +1,3 @@
-
-
 function updateHeaderAfterLogin() {
     const token = localStorage.getItem('token');
     if (token) {
@@ -7,8 +5,30 @@ function updateHeaderAfterLogin() {
         document.getElementById('register-link').style.display = 'none';
         const userSpecificElements = document.querySelectorAll('.user-specific');
         userSpecificElements.forEach(elem => elem.style.display = 'block');
-        if (document.getElementById('logout-button')) {
-            document.getElementById('logout-button').style.display = 'inline-block';
+        const logoutButton = document.getElementById('logout-button');
+        if (logoutButton) {
+            logoutButton.style.display = 'inline-block';
+            // Liitetään logout-napin tapahtumankäsittelijä tässä
+            logoutButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Logout button clicked'); // Tarkistetaan, suoritetaanko tapahtumankäsittelijää
+
+                fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    localStorage.removeItem('token');
+                    window.location.href = 'index.html'; // Ohjaa käyttäjä etusivulle
+                })
+                .catch(error => {
+                    console.error('Uloskirjautumisessa tapahtui virhe:', error);
+                });
+            });
         }
     } else {
         // Kirjaudu ja Rekisteröidy linkit näkyvät, jos ei tokenia
@@ -21,3 +41,6 @@ function updateHeaderAfterLogin() {
         }
     }
 }
+
+// Varmistetaan, että updateHeaderAfterLogin suoritetaan jokaisen sivulatauksen yhteydessä
+document.addEventListener('DOMContentLoaded', updateHeaderAfterLogin);

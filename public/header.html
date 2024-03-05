@@ -1,71 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
 
-<script src="common.js" defer></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ravintola Ryhmä C</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="common.js" defer></script>
+</head>
 
-<header>
-    <h1>Ravintola Ryhmä C</h1>
-    <nav>
-        <ul>
-            <li><a href="index.html">Koti</a></li>
-            <li><a href="reservations.html">Varaukset</a></li>
-            <li><a href="contact.html">Yhteystiedot</a></li>
-            <!-- Säilytetään Kirjaudu ja Rekisteröidy linkit ja hallitaan niiden näkyvyyttä -->
-            <li id="login-link"><a href="login.html">Kirjaudu</a></li>
-            <li id="register-link"><a href="register.html">Rekisteröidy</a></li>
-            <!-- Tehdään näkyväksi vain, jos käyttäjä on kirjautunut -->
-            <li class="user-specific" style="display:none;"><a href="profile.html">Oma profiili</a></li>
-            <li class="user-specific" style="display:none;"><a href="hallintapaneeli.html">Hallintapaneeli</a></li>
-        </ul>
-    </nav>
-    <!--  kirjautumislomake ja "Kirjaudu ulos" -painike -->
-    <form id="login-form" style="display:none;">
-        <label for="login-username">Käyttäjänimi:</label>
-        <input type="text" id="login-username" required>   
-        <label for="login-password">Salasana:</label>
-        <input type="password" id="login-password" required>         
-        <button type="submit">Kirjaudu sisään</button>
-        <button type="button" id="reset-password-button">Resetoi salasana</button>
-    </form>
-    <button id="logout-button">Kirjaudu ulos</button>
-</header>
+<body>
+    <header>
+        <h1>Ravintola Ryhmä C</h1>
+        <nav>
+            <ul>
+                <!-- Navigointilinkit eri sivuille -->
+                <li><a href="index.html">Koti</a></li>
+                <li><a href="reservations.html">Varaukset</a></li>
+                <li><a href="contact.html">Yhteystiedot</a></li>
+                <!-- Nämä linkit näkyvät, kun käyttäjä ei ole kirjautunut sisään -->
+                <li id="login-link"><a href="login.html">Kirjaudu</a></li>
+                <li id="register-link"><a href="register.html">Rekisteröidy</a></li>
+                <!-- Nämä linkit näkyvät vain, kun käyttäjä on kirjautunut sisään -->
+                <li class="user-specific" style="display:none;"><a href="profile.html">Oma profiili</a></li>
+                <li class="user-specific" style="display:none;"><a href="hallintapaneeli.html">Hallintapaneeli</a></li>
+            </ul>
+        </nav>
+        <!-- Kirjautumislomake, joka näytetään vain, kun käyttäjä ei ole kirjautunut sisään -->
 
-<div id="modal-container"></div>
+        <form id="login-form" style="display:none;">
+            <label for="login-username">Käyttäjänimi:</label>
+            <input type="text" id="login-username" required>   
+            <label for="login-password">Salasana:</label>
+            <input type="password" id="login-password" required>         
+            <button type="submit">Kirjaudu sisään</button>
+            <button type="button" id="reset-password-button">Resetoi salasana</button>
+        </form>
+        <!-- Kirjaudu ulos -painike, joka näytetään vain, kun käyttäjä on kirjautunut sisään -->
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const token = localStorage.getItem('token');
-        if (token) {
-            // Käyttäjä on kirjautunut sisään, päivitä navigointilinkkien näkyvyys
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('login-link').style.display = 'none';
-            document.getElementById('register-link').style.display = 'none';
-            document.querySelectorAll('.user-specific').forEach(elem => elem.style.display = 'block');
-            document.getElementById('logout-button').style.display = 'inline-block';
-            updateHeaderAfterLogin(); 
-        } else {
-            // Käyttäjä ei ole kirjautunut sisään, näytä kirjautumislomake
-            document.getElementById('login-form').style.display = 'block';
-        }
+        <button id="logout-button" style="display:none;">Kirjaudu ulos</button>
+    </header>
 
-        document.getElementById('logout-button').addEventListener('click', function(e) {
-            e.preventDefault();
+    <div id="modal-container"></div>
 
-            fetch('/logout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                localStorage.removeItem('token');
-                window.location.href = 'index.html'; // Ohjaa käyttäjä etusivulle
-            })
-            .catch(error => {
-                console.error('Uloskirjautumisessa tapahtui virhe:', error);
-            });
-        });
+</body>
 
-    });
-
-</script>
+</html>
