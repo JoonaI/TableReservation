@@ -112,11 +112,18 @@
             poydatContainer.innerHTML = '<h2>Varatut pöydät:</h2><ul>';
             if (Array.isArray(poydat)) {
                 poydat.forEach(poyta => {
+                     // Muunnetaan ISO 8601 -muotoinen päivämäärä JavaScriptin Date-objektiksi
+                    const date = new Date(poyta.päivämäärä);
+                    // Muunnetaan päivämäärä haluttuun muotoon
+                    const formattedDate = date.toLocaleDateString(); // Tässä muodossa "kk/pp/vvvv"
+
                     poydatContainer.innerHTML +=
                         `<li>
                         Pöytä ID: ${poyta.pöytä_id}, 
                         Kapasiteetti: ${poyta.kapasiteetti}, 
-                        Lisätiedot: ${poyta.lisätiedot}
+                        Lisätiedot: ${poyta.lisätiedot},
+                        Päivämäärä: ${formattedDate},
+                        Aika: ${poyta.aika}
                         <button onclick='vahvistaVaraus(${poyta.pöytä_id})'>Vahvista varaus </button> 
                         <button onclick='muokkaaVarausta(${poyta.pöytä_id})'>Muokkaa varausta </button>
                         <button onclick='peruVaraus(${poyta.pöytä_id})'>Peru varaus </button>
