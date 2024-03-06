@@ -22,6 +22,17 @@
                     document.getElementById('header-placeholder').innerHTML = data;
                     updateHeaderAfterLogin();
                 });
+
+                // Lataa tallennetut aukioloajat sivun latautuessa
+            const savedOpeningHours = localStorage.getItem('openingHours');
+            if (savedOpeningHours) {
+                document.getElementById('aukioloajat').innerHTML = "<h2>Aukioloajat:</h2><p>" + savedOpeningHours + "</p>";
+            } else {
+                // Aseta oletusarvoinen aukioloaika, jos tallennettua aukioloaikaa ei ole
+                const defaultOpeningHours = "Maanantai-perjantai: 9:00 - 21:00<br>Lauantai-sunnuntai: 10:00 - 20:00";
+                document.getElementById('aukioloajat').innerHTML = "<h2>Aukioloajat:</h2><p>" + defaultOpeningHours + "</p>";
+            }
+            
              // Delegoi kuuntelija document-tasolle ja tarkista, onko klikattu elementti reset-password-button
              document.addEventListener('click', function(event) {
                 if (event.target.id === 'reset-password-button') {
@@ -37,6 +48,11 @@
             <h2>Tervetuloa Ravintola Ryhmä C sivuille!</h2>
             <p class="alaotsikko">Rekisteröidy tai kirjaudu sisään ennen varauksen tekemistä</p>
         </section>
+
+        <!-- Lisää aukioloaikojen div-elementti tähän -->
+    <div id="aukioloajat">
+        <!-- Tähän tulostetaan aukioloajat -->
+    </div>
     </main>
 
     <!-- Alatunniste -->
