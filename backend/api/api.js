@@ -216,14 +216,24 @@ app.put('/muokkaa-varausta/:poytaID', (req, res) => {
 // Luodaan reitti varauksen peruuttamiselle
 app.post('/peruuta-varaus/:poytaID', (req, res) => {
     const poytaID = req.params.poytaID;
-    // Päivitetään tietokantaan pöytä vapaaksi
-    connection.query('UPDATE poytavaraus.pöytä SET on_varattu = NULL WHERE pöytä_id = ?', [poytaID], (error, results) => {
+    
+    // Poistetaan ensin varaukset, jotka liittyvät tähän pöytään
+    connection.query('DELETE FROM poytavaraus.varaus WHERE pöytä_id = ?', [poytaID], (error, results) => {
         if (error) {
             console.error('Virhe varauksen peruuttamisessa: ' + error.stack);
             res.status(500).json({ error: 'Varauksen peruuttaminen epäonnistui' });
             return;
         }
-        res.json({ message: 'Varaus on peruutettu' });
+
+        // Päivitetään sitten pöytä vapaaksi
+        connection.query('UPDATE poytavaraus.pöytä SET on_varattu = NULL WHERE pöytä_id = ?', [poytaID], (error, results) => {
+            if (error) {
+                console.error('Virhe varauksen peruuttamisessa: ' + error.stack);
+                res.status(500).json({ error: 'Varauksen peruuttaminen epäonnistui' });
+                return;
+            }
+            res.json({ message: 'Varaus on peruutettu' });
+        });
     });
 });
 
