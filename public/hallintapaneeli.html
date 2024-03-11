@@ -93,18 +93,20 @@
 
     <script>
         // Näytä varaukset automaattisesti sivun latautuessa
-        document.addEventListener("DOMContentLoaded", function () {
-            //haetaan varatut pöydät palvelimelta
-            fetch('/varatut-poydat')
-                .then(response => response.json())
-                .then(data => {
-                    //tulostetaan varatut pöydät
-                    tulostaPoydat(data);
-                })
-                .catch(error => {
-                    console.error('Virhe pöytien hakemisessa: ', error);
-                });
+document.addEventListener("DOMContentLoaded", function () {
+    //haetaan varatut pöydät palvelimelta
+    fetch('/varatut-poydat')
+        .then(response => response.json())
+        .then(data => {
+            // Järjestä varatut pöydät päivämäärän mukaan
+            data.sort((a, b) => new Date(a.päivämäärä) - new Date(b.päivämäärä));
+            // Tulosta varatut pöydät päivämäärän mukaan
+            tulostaPoydat(data);
+        })
+        .catch(error => {
+            console.error('Virhe pöytien hakemisessa: ', error);
         });
+});
 
         function tulostaPoydat(poydat) {
             console.log(poydat);
