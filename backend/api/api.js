@@ -69,14 +69,23 @@ app.get('/hallintapaneeli', (req, res) => {
 // Luodaan reitti pöytävarausten tarkistamiselle
 app.post('/tarkista-saatavuus', upload.array(), (req, res) => {
     console.log("BOODI", req.body)
-    const haluttuPaivamaara = req.body.pvm; // Haetaan päivämäärä lomakkeen lähetyksestä
+    var haluttuPaivamaara = req.body.pvm; // Haetaan päivämäärä lomakkeen lähetyksestä
+    var haluttuAika = req.body.aika; // Haetaan aika lomakkeen lähetyksestä
     const henkilomaara = req.body.henkilomaara; // Haetaan henkilömäärä lomakkeen lähetyksestä
+
+    // Muutetaan päivämäärä muotoon 'YYYY-MM-DD'
+    var paivamaaraKomponentit = haluttuPaivamaara.split("/");
+    haluttuPaivamaara = `${paivamaaraKomponentit[2]}-${paivamaaraKomponentit[1]}-${paivamaaraKomponentit[0]}`;
+
+    // Lisätään sekunnit aikaan
+    haluttuAika = haluttuAika + ":00";
+
     console.log('Saapui tarkista-saatavuus-reitille.');
     console.log('Haluttu päivämäärä:', haluttuPaivamaara); // Lisätään lokituloste
+    console.log('Haluttu aika:', haluttuAika); // Lisätään lokituloste
     console.log('Haluttu henkilömäärä:', henkilomaara); // Lisätään lokituloste
 
-
-    haeVapaatPoydat(haluttuPaivamaara, henkilomaara, (error, results) => {
+    haeVapaatPoydat(haluttuPaivamaara, haluttuAika, henkilomaara, (error, results) => {
         if (error) {
             console.error('Virhe vapaata pöytää haettaessa: ' + error.stack);
             res.status(500).json({ error: 'Virhe vapaata pöytää haettaessa' });
@@ -87,26 +96,21 @@ app.post('/tarkista-saatavuus', upload.array(), (req, res) => {
     });
 });
 
+function haeVapaatPoydat(haluttuPaivamaara, haluttuAika, henkilomaara, callback) {
+    console.log("halutut tiedot: ", haluttuPaivamaara, haluttuAika, henkilomaara);
 
-// Funktio, joka hakee vapaana olevat pöydät halutulle päivämäärälle ja henkilömäärälle
-function haeVapaatPoydat(haluttuPaivamaara, henkilomaara, callback) {
-    // SQL-kysely vapaana olevien pöytien hakemiseksi halutulle päivämäärälle ja henkilömäärälle
-    console.log("halutut tiedot: ", haluttuPaivamaara, henkilomaara);
     const sql = `
     SELECT p.pöytä_id, p.kapasiteetti, p.lisätiedot
-    FROM poytavaraus.pöytä p
-    WHERE p.pöytä_id NOT IN (
-      SELECT pv.pöytä_id
-      FROM mydb.Pöytävaraus pv
-      JOIN poytavaraus.varaus v ON pv.varaus_id = v.varaus_id
-      WHERE v.päivämäärä = ?
-      )
-      AND p.kapasiteetti >= ?
-      AND (p.on_varattu = 0 OR p.on_varattu IS NULL)
+        FROM pöytä p
+        WHERE p.kapasiteetti >= ? AND NOT EXISTS (
+        SELECT 1 FROM varaus v
+        WHERE p.pöytä_id = v.pöytä_id AND v.päivämäärä = ? AND 
+        (? < v.loppumisaika AND ? > v.aika)
+    )
     `;
 
     // Suoritetaan kysely
-    connection.query(sql, [haluttuPaivamaara, henkilomaara], (error, results) => {
+    connection.query(sql, [henkilomaara, haluttuPaivamaara, haluttuAika, haluttuAika], (error, results) => {
         if (error) {
             console.error('Virhe tietokantakyselyssä: ' + error.stack);
             callback(error, null);
@@ -117,6 +121,7 @@ function haeVapaatPoydat(haluttuPaivamaara, henkilomaara, callback) {
         callback(null, results);
     });
 }
+
 
 // Luodaan reitti pöydän varaamiselle
 app.post('/varaa-poyta', (req, res) => {
@@ -144,40 +149,30 @@ app.post('/varaa-poyta', (req, res) => {
 
     const pöytä_id = req.body.pöytä_id; // Haetaan varaajan valitsema pöytä ID:n perusteella
 
-    // Päivitetään tietokantaan pöytä varatuksi
-    connection.query('UPDATE poytavaraus.pöytä SET on_varattu = 1 WHERE pöytä_id = ?', [pöytä_id], (error, results) => {
+
+
+    // Lisätään varaus tietokantaan
+    const aika = req.body.aika;
+    const loppumisaika = new Date(`1970-01-01T${aika}Z`); // Lisätään varauksen loppumisaika
+    loppumisaika.setHours(loppumisaika.getHours() + 2); // Lisätään varauksen loppumisaika
+
+    const varausData = {
+        päivämäärä: req.body.pvm,
+        aika: req.body.aika,
+        loppumisaika: loppumisaika.toISOString().split('T')[1].split('Z')[0],
+        henkilömäärä: req.body.henkilomaara,
+        user_id: userId,
+        pöytä_id: pöytä_id
+    };
+    connection.query('INSERT INTO varaus SET ?', varausData, (error, results) => {
         if (error) {
-            console.error('Virhe pöydän varaamisessa: ' + error.stack);
-            res.status(500).json({ error: 'Pöydän varaaminen epäonnistui' });
+            console.error('Virhe varauksen lisäämisessä: ' + error.stack);
+            res.status(500).json({ error: 'Varauksen lisääminen epäonnistui' });
             return;
         }
-        console.log('results ennen :', results);
-        console.log('Pöytä varattu onnistuneesti.', pöytä_id);
-
-
-        console.log('req.body:', req.body);
-
-        // Lisätään varaus tietokantaan
-
-        const varausData = {
-            päivämäärä: req.body.pvm,
-            aika: req.body.aika,
-            henkilömäärä: req.body.henkilomaara,
-            user_id: userId,
-            pöytä_id: pöytä_id
-        };
-        connection.query('INSERT INTO varaus SET ?', varausData, (error, results) => {
-            if (error) {
-                console.error('Virhe varauksen lisäämisessä: ' + error.stack);
-                res.status(500).json({ error: 'Varauksen lisääminen epäonnistui' });
-                return;
-            }
-            console.log('Varaus lisätty onnistuneesti.');
-            res.json({ message: 'Pöytä varattu ja varaus lisätty onnistuneesti' });
-        });
+        console.log('Varaus lisätty onnistuneesti.');
+        res.json({ message: 'Pöytä varattu ja varaus lisätty onnistuneesti' });
     });
-
-
 });
 
 module.exports = {
@@ -186,7 +181,7 @@ module.exports = {
 
 //Luodaan reitti varattujen pöytien hakemiselle hallintapaneelia varten
 app.get('/varatut-poydat', (req, res) => {
-    connection.query('SELECT p.*, v.päivämäärä, v.aika FROM poytavaraus.pöytä p JOIN poytavaraus.varaus v ON p.pöytä_id = v.pöytä_id WHERE p.on_varattu IS NOT NULL', (error, results) => {
+    connection.query('SELECT p.*, v.päivämäärä, v.aika FROM poytavaraus.pöytä p JOIN poytavaraus.varaus v ON p.pöytä_id = v.pöytä_id', (error, results) => {
         if (error) {
             console.error('Virhe tietokantakyselyssä: ' + error.stack);
             res.status(500).json({ error: 'Pöytien haku epäonnistui' });
@@ -216,24 +211,14 @@ app.put('/muokkaa-varausta/:poytaID', (req, res) => {
 // Luodaan reitti varauksen peruuttamiselle
 app.post('/peruuta-varaus/:poytaID', (req, res) => {
     const poytaID = req.params.poytaID;
-    
-    // Poistetaan ensin varaukset, jotka liittyvät tähän pöytään
-    connection.query('DELETE FROM poytavaraus.varaus WHERE pöytä_id = ?', [poytaID], (error, results) => {
+    // Päivitetään tietokantaan pöytä vapaaksi
+    connection.query('UPDATE poytavaraus.pöytä SET on_varattu = NULL WHERE pöytä_id = ?', [poytaID], (error, results) => {
         if (error) {
             console.error('Virhe varauksen peruuttamisessa: ' + error.stack);
             res.status(500).json({ error: 'Varauksen peruuttaminen epäonnistui' });
             return;
         }
-
-        // Päivitetään sitten pöytä vapaaksi
-        connection.query('UPDATE poytavaraus.pöytä SET on_varattu = NULL WHERE pöytä_id = ?', [poytaID], (error, results) => {
-            if (error) {
-                console.error('Virhe varauksen peruuttamisessa: ' + error.stack);
-                res.status(500).json({ error: 'Varauksen peruuttaminen epäonnistui' });
-                return;
-            }
-            res.json({ message: 'Varaus on peruutettu' });
-        });
+        res.json({ message: 'Varaus on peruutettu' });
     });
 });
 
