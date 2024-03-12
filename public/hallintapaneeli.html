@@ -121,14 +121,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     poydatContainer.innerHTML +=
                         `<li>
-                        Pöytä ID: ${poyta.pöytä_id}, 
+                        Varausnro: ${poyta.varaus_id},
+                        Pöytä: ${poyta.pöytä_id}, 
                         Kapasiteetti: ${poyta.kapasiteetti}, 
                         Lisätiedot: ${poyta.lisätiedot},
                         Päivämäärä: ${formattedDate},
                         Aika: ${poyta.aika}
-                        <button onclick='vahvistaVaraus(${poyta.pöytä_id})'>Vahvista varaus </button> 
+                        <button onclick='vahvistaVaraus(${poyta.varaus_id})'>Vahvista varaus </button> 
                         <button onclick='muokkaaVarausta(${poyta.pöytä_id})'>Muokkaa varausta </button>
-                        <button onclick='peruVaraus(${poyta.pöytä_id})'>Peru varaus </button>
+                        <button onclick='peruVaraus(${poyta.varaus_id})'>Peru varaus </button>
                         </li>`;
                 });
             } else {
@@ -138,11 +139,27 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        function vahvistaVaraus(index) {
-            // Tähän voi lisätä koodia varauksen vahvistamiseen
-            alert("Vahvistetaan varaus: " + index);
+        function vahvistaVaraus(varausID) {
+    fetch('/vahvista-varaus/' + varausID, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        // Poista nappi hallintapaneelista
+        const button = document.querySelector(`button[data-id="${varausID}"]`);
+        if (button) {
+            button.parentNode.removeChild(button);
         }
-
+    })
+    .catch(error => {
+        console.error('Virhe varauksen vahvistamisessa: ', error);
+    });
+}
         function muokkaaVarausta(index) {
     var poyta_id = prompt("Syötä pöytä_id:");
     var kapasiteetti = prompt("Syötä kapasiteetti:");
@@ -196,7 +213,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     .catch(error => {
                         console.error('Virhe varauksen perumisessa: ', error);
                     });
-                alert("Varaus pöydältä: " + pöytä_id + " on peruutettu.");
             }
         }
 

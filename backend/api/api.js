@@ -181,7 +181,7 @@ module.exports = {
 
 //Luodaan reitti varattujen pöytien hakemiselle hallintapaneelia varten
 app.get('/varatut-poydat', (req, res) => {
-    connection.query('SELECT p.*, v.päivämäärä, v.aika FROM poytavaraus.pöytä p JOIN poytavaraus.varaus v ON p.pöytä_id = v.pöytä_id', (error, results) => {
+    connection.query('SELECT p.*, v.päivämäärä, v.aika, v.varaus_id FROM poytavaraus.pöytä p JOIN poytavaraus.varaus v ON p.pöytä_id = v.pöytä_id', (error, results) => {
         if (error) {
             console.error('Virhe tietokantakyselyssä: ' + error.stack);
             res.status(500).json({ error: 'Pöytien haku epäonnistui' });
@@ -211,14 +211,29 @@ app.put('/muokkaa-varausta/:poytaID', (req, res) => {
 // Luodaan reitti varauksen peruuttamiselle
 app.post('/peruuta-varaus/:poytaID', (req, res) => {
     const poytaID = req.params.poytaID;
-    // Päivitetään tietokantaan pöytä vapaaksi
-    connection.query('UPDATE poytavaraus.pöytä SET on_varattu = NULL WHERE pöytä_id = ?', [poytaID], (error, results) => {
+    // Poistetaan ensin varaukset, jotka liittyvät tähän pöytään
+    connection.query('DELETE FROM poytavaraus.varaus WHERE varaus_id = ?', [poytaID], (error, results) => {
         if (error) {
             console.error('Virhe varauksen peruuttamisessa: ' + error.stack);
             res.status(500).json({ error: 'Varauksen peruuttaminen epäonnistui' });
             return;
         }
         res.json({ message: 'Varaus on peruutettu' });
+    });
+});
+
+// Luodaan reitti varauksen vahvistamiselle
+app.put('/vahvista-varaus/:varausID', (req, res) => {
+    const varausID = req.params.varausID;
+
+    // Päivitetään tietokantaan varaus ja merkitään se vahvistetuksi
+    connection.query('UPDATE poytavaraus.varaus SET on_vahvistettu = 1 WHERE varaus_id = ?', [varausID], (error, results) => {
+        if (error) {
+            console.error('Virhe varauksen vahvistamisessa: ' + error.stack);
+            res.status(500).json({ error: 'Varauksen vahvistaminen epäonnistui' });
+            return;
+        }
+        res.json({ message: 'Varaus vahvistettu' });
     });
 });
 
