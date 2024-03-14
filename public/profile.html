@@ -115,7 +115,9 @@
                 varaukset.forEach(varaus => {
                     varauksetLista.innerHTML += `
                         <li>
-                            Varaus ID: ${varaus.varaus_id}, Päivämäärä: ${varaus.päivämäärä}, Aika: ${varaus.aika}, Henkilömäärä: ${varaus.henkilömäärä}
+                            Varaus ID: ${varaus.varaus_id}, Päivämäärä: ${varaus.päivämäärä}, Aika: ${varaus.aika},
+                            Henkilömäärä: ${varaus.henkilömäärä}, Erikoispyynnöt: ${varaus.erikoispyynnot || ''},
+                            Lisätiedot: ${varaus.lisatiedot || ''}, Tilaisuus: ${varaus.tilaisuus || ''}
                             <button onclick="muokkaaVarausta(${varaus.varaus_id})">Muokkaa</button>
                             <button onclick="peruVaraus(${varaus.varaus_id})">Peru varaus</button>
                         </li>`;
@@ -151,6 +153,7 @@
                     });
                 }
             };
+
         });
 
         // Lisää kuuntelija lomakkeelle, joka päivittää käyttäjän tiedot
