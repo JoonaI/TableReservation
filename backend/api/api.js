@@ -87,6 +87,57 @@ app.put('/profile', (req, res) => {
     }
 });
 
+// Hae käyttäjän tekemät varaukset
+app.get('/user-reservations', (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ message: 'Token puuttuu' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+
+        const query = 'SELECT * FROM varaus WHERE user_id = ?';
+        connection.query(query, [userId], (error, results) => {
+            if (error) {
+                return res.status(500).json({ message: 'Varausten haku epäonnistui' });
+            }
+            res.json(results);
+        });
+    } catch (error) {
+        res.status(401).json({ message: 'Virheellinen token' });
+    }
+});
+
+// Poistetaan käyttäjän tekemä varaus
+app.delete('/peruuta-varaus/:varausID', (req, res) => {
+    const varausID = req.params.varausID;
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ message: 'Token puuttuu' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+
+        // Varmistetaan, että varaus kuuluu kirjautuneelle käyttäjälle
+        const query = 'DELETE FROM varaus WHERE varaus_id = ? AND user_id = ?';
+        connection.query(query, [varausID, userId], (error, results) => {
+            if (error) {
+                return res.status(500).json({ message: 'Varauksen poistaminen epäonnistui' });
+            }
+            if (results.affectedRows === 0) {
+                return res.status(404).json({ message: 'Varausta ei löytynyt, tai se ei kuulu sinulle' });
+            }
+            res.json({ message: 'Varaus peruutettu onnistuneesti' });
+        });
+    } catch (error) {
+        res.status(401).json({ message: 'Virheellinen token' });
+    }
+});
+
 const path = require('path');
 const { error } = require('console');
 

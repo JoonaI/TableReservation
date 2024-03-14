@@ -82,7 +82,7 @@
                 window.location.href = '/login.html'; // Jos ei tokenia, ohjaa kirjautumissivulle
                 return;
             }
-
+            // Haetaan käyttäjän tiedot
             fetch('/profile', {
                 method: 'GET',
                 headers: {
@@ -99,6 +99,58 @@
                 // Voit lisätä myös muita tietoja tarpeen mukaan
             })
             .catch(error => console.error('Virhe haettaessa käyttäjätietoja:', error));
+
+            // Haetaan käyttäjän varaukset
+            fetch('/user-reservations', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                },
+            })
+            .then(response => response.json())
+            .then(varaukset => {
+                const varauksetLista = document.getElementById('varaukset-lista');
+                varauksetLista.innerHTML = ''; // Tyhjennä lista ennen uusien varauksien lisäämistä
+                // Lisää jokainen varaus listaan
+                varaukset.forEach(varaus => {
+                    varauksetLista.innerHTML += `
+                        <li>
+                            Varaus ID: ${varaus.varaus_id}, Päivämäärä: ${varaus.päivämäärä}, Aika: ${varaus.aika}, Henkilömäärä: ${varaus.henkilömäärä}
+                            <button onclick="muokkaaVarausta(${varaus.varaus_id})">Muokkaa</button>
+                            <button onclick="peruVaraus(${varaus.varaus_id})">Peru varaus</button>
+                        </li>`;
+                });
+            })
+            .catch(error => console.error('Virhe haettaessa varauksia:', error));
+
+            // Peruuta varaus -funktio
+            window.peruVaraus = function(varaus_id) {
+                var varmistus = confirm("Haluatko varmasti peruuttaa tämän varauksen?");
+                if (varmistus) {
+                    fetch('/peruuta-varaus/' + varaus_id, {
+                        method: 'DELETE', // Käyttää DELETE-metodia
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Varauksen peruuttaminen epäonnistui');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        alert(data.message);
+                        // Päivitä sivu näyttämään muutokset
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Virhe:', error);
+                        alert('Virhe varauksen perumisessa.');
+                    });
+                }
+            };
         });
 
         // Lisää kuuntelija lomakkeelle, joka päivittää käyttäjän tiedot
