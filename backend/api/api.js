@@ -42,6 +42,51 @@ app.put('/user/:id', (req, res) => {
     });
 });
 
+// Haetaan kirjautuneen käyttäjän profiilitiedot
+app.get('/profile', (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1]; // Oletetaan Bearer token
+    if (!token) {
+        return res.status(401).json({ message: 'Token puuttuu' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+
+        connection.query('SELECT etunimi, sukunimi, email, username FROM users WHERE user_id = ?', [userId], (error, results) => {
+            if (error || results.length === 0) {
+                return res.status(500).json({ message: 'Käyttäjän tietojen haku epäonnistui' });
+            }
+            res.json(results[0]);
+        });
+    } catch (error) {
+        res.status(401).json({ message: 'Virheellinen token' });
+    }
+});
+
+// Päivitä kirjautuneen käyttäjän profiilitiedot
+app.put('/profile', (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ message: 'Token puuttuu' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+        const { etunimi, sukunimi, email, username } = req.body;
+
+        connection.query('UPDATE users SET etunimi = ?, sukunimi = ?, email = ?, username = ? WHERE user_id = ?', [etunimi, sukunimi, email, username, userId], (error, results) => {
+            if (error) {
+                return res.status(500).json({ message: 'Käyttäjän tietojen päivitys epäonnistui' });
+            }
+            res.json({ message: 'Käyttäjätiedot päivitetty onnistuneesti' });
+        });
+    } catch (error) {
+        res.status(401).json({ message: 'Virheellinen token' });
+    }
+});
+
 const path = require('path');
 const { error } = require('console');
 

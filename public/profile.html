@@ -64,7 +64,7 @@
                     <input type="password" id="password" name="password" required>
                 </div> -->
 
-                <button type="submit">Muokkaa tietoja</button>
+                <button type="submit">Tallenna tiedot</button>
             </form>
             <h2>Omat varaukset</h2>
             <ul id="varaukset-lista">
@@ -75,86 +75,72 @@
 
     <!-- Skriptit -->
     <script>
-
+        // Haetaan käyttäjän tiedot ja asetetaan ne lomakkeen kenttiin
         document.addEventListener('DOMContentLoaded', function() {
-            // Kutsu haeVaraukset funktiota kun sivu on täysin ladattu
-             haeVaraukset();
-        });
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login.html'; // Jos ei tokenia, ohjaa kirjautumissivulle
+                return;
+            }
 
-        function haeVaraukset() {
-            setTimeout(() => {
-                // Oletetaan, että tämä on palvelimelta saatu vastaus
-                const mockVaraukset = [
-                { id: 1, päivämäärä: '2024-02-27', aika: '18:00', henkilomäärä: 4 },
-                { id: 2, päivämäärä: '2024-02-28', aika: '19:00', henkilomäärä: 2 }
-                ];
-
-                const varauksetLista = document.getElementById('varaukset-lista');
-                varauksetLista.innerHTML = '';
-                mockVaraukset.forEach(varaus => {
-                    varauksetLista.innerHTML += `
-                        <li>
-                            Varaus ID: ${varaus.id}, Päivämäärä: ${varaus.päivämäärä}, Aika: ${varaus.aika}, Henkilömäärä: ${varaus.henkilomäärä}
-                            <button onclick="muokkaaVarausta(${varaus.id})">Muokkaa</button>
-                            <button onclick="poistaVaraus(${varaus.id})">Poista</button>
-                        </li>`;
-                });
-            }, 1000); // Simuloi 1 sekunnin verkkoviivettä
-        }
-
-        /*
-        function haeVaraukset() {
-            fetch(`/varausket`) // Oikea API-reitti tähän
-                .then(response => response.json())
-                .then(varaukset => {
-                    const varauksetLista = document.getElementById('varaukset-lista');
-                    varauksetLista.innerHTML = ''; // Tyhjennä lista ennen uusien varauksien lisäämistä
-                    varaukset.forEach(varaus => {
-                        varauksetLista.innerHTML += `
-                            <li>
-                                Varaus ID: ${varaus.id}, Päivämäärä: ${varaus.päivämäärä}, Aika: ${varaus.aika}, Henkilömäärä: ${varaus.henkilomäärä}
-                                <button onclick="muokkaaVarausta(${varaus.id})">Muokkaa</button>
-                                <button onclick="poistaVaraus(${varaus.id})">Poista</button>
-                            </li>`;
-                    });
-                })
-                .catch(error => console.error('Virhe haettaessa varauksia:', error));
-        }
-    
-        function muokkaaVarausta(varausId) {
-            // Tähän voisi lisätä toiminnallisuuden varauksen tietojen muokkaamiseen.
-            // Esimerkiksi avata modal-ikkunan, jossa voi muokata varauksen tietoja ja sitten lähettää päivitetyt tiedot palvelimelle.
-        }
-    
-        function poistaVaraus(varausId) {
-            fetch(`/api/polku/poista_varaus/${varausId}`, { method: 'DELETE' }) // Oikea API-reitti tähän
-                .then(response => {
-                    if (response.ok) {
-                        console.log('Varaus poistettu onnistuneesti');
-                        haeVaraukset(); // Päivitä varauslista
-                    } else {
-                        console.error('Virhe poistettaessa varausta');
-                    }
-                })
-                .catch(error => console.error('Poisto epäonnistui:', error));
-        }
-
-        /* document.addEventListener("DOMContentLoaded", function() {
-            // Oletetaan, että userId on jollakin tavalla saatavilla, esim. kirjautuneen käyttäjän tietona
-            const userId = 'kirjautuneen_käyttäjän_id';
-
-            fetch(`/users/${userId}`)
+            fetch('/profile', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            })
             .then(response => response.json())
             .then(data => {
-                // Aseta haetut arvot lomakkeen kenttiin
+                // Aseta käyttäjän tiedot lomakkeen kenttiin
                 document.getElementById('name').value = data.etunimi;
                 document.getElementById('lastname').value = data.sukunimi;
                 document.getElementById('email').value = data.email;
                 document.getElementById('username').value = data.username;
-                // Oletetaan, että palvelimen vastauksessa on avaimet etunimi, sukunimi, email, ja username
+                // Voit lisätä myös muita tietoja tarpeen mukaan
             })
-            .catch(error => console.error('Error fetching user data:', error));
-        }); */
+            .catch(error => console.error('Virhe haettaessa käyttäjätietoja:', error));
+        });
+
+        // Lisää kuuntelija lomakkeelle, joka päivittää käyttäjän tiedot
+        document.getElementById('profile-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Sinun on kirjauduttava sisään muokataksesi profiilitietoja');
+            return;
+        }
+
+        const etunimi = document.getElementById('name').value;
+        const sukunimi = document.getElementById('lastname').value;
+        const email = document.getElementById('email').value;
+        const username = document.getElementById('username').value;
+
+        fetch('/profile', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ etunimi, sukunimi, email, username }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Profiilin päivitys epäonnistui');
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert(data.message);
+            // Päivitä sivu näyttämään päivitetyt tiedot
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error('Virhe:', error);
+            alert('Profiilin päivitys epäonnistui: ' + error.message);
+        });
+    });
+ 
     </script>
     
 
