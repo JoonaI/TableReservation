@@ -30,6 +30,7 @@ function updateHeaderAfterLogin() {
                 });
             });
         }
+        document.getElementById('login-form-header').style.display = 'none'; // Piilota kirjautumislomake, kun käyttäjä on kirjautunut sisään
     } else {
         // Kirjaudu ja Rekisteröidy linkit näkyvät, jos ei tokenia
         document.getElementById('login-link').style.display = 'block';
@@ -39,6 +40,7 @@ function updateHeaderAfterLogin() {
         if (document.getElementById('logout-button')) {
             document.getElementById('logout-button').style.display = 'none';
         }
+        document.getElementById('login-form-header').style.display = 'block'; // Näytä kirjautumislomake, kun käyttäjä ei ole kirjautunut sisään
     }
 }
 
