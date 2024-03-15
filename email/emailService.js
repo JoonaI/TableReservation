@@ -1,4 +1,3 @@
-require('dotenv').config();
 const nodemailer = require('nodemailer');
 
 const sendEmail = async (recipient, subject, text, html) => {
@@ -7,9 +6,6 @@ const sendEmail = async (recipient, subject, text, html) => {
         host: "smtp-mail.outlook.com", // Outlookin SMTP-palvelimen osoite
         secureConnection: false, // Käytetään TLS:ää
         port: 587, // Standardi SMTP-portti
-        tls: {
-          ciphers: 'SSLv3'
-        },
         auth: {
             user: process.env.EMAIL_USER, // Käyttäen ympäristömuuttujaa Outlook-sähköpostiosoitteelle
             pass: process.env.EMAIL_PASS // Käyttäen ympäristömuuttujaa Outlook-salasanalle

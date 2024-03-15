@@ -7,8 +7,10 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = 'salainenAvain'; // muokkaa myöhemmin
+const { sendEmail } = require('../../email/emailService');
 
 
+require('dotenv').config({ path: '../../.env' });
 
 //luodaan uusi express sovellus
 const app = express();
@@ -267,7 +269,7 @@ app.post('/varaa-poyta', (req, res) => {
             return;
         }
 
-        connection.query('SELECT email FROM Users WHERE id = ?', [userId], (error, results) => {
+        connection.query('SELECT email FROM Users WHERE user_id = ?', [userId], (error, results) => {
             if (error) {
                 console.error('Virhe käyttäjän sähköpostiosoitteen haussa: ' + error.stack);
                 // Tässä voi päättää, mitä tehdä jos sähköpostiosoitteen haku epäonnistuu.
@@ -349,10 +351,11 @@ app.put('/vahvista-varaus/:varausID', (req, res) => {
             return;
         }
 
-        connection.query('SELECT u.email FROM Users u JOIN varaus v ON u.id = v.user_id WHERE v.varaus_id = ?', [varausID], (error, results) => {
+        connection.query('SELECT u.email FROM poytavaraus.users u JOIN poytavaraus.varaus v ON u.user_id = v.user_id WHERE v.varaus_id = ?', [varausID], (error, results) => {
             if (error) {
                 console.error('Virhe käyttäjän sähköpostiosoitteen haussa: ' + error.stack);
                 // Tässä voi päättää, mitä tehdä jos sähköpostiosoitteen haku epäonnistuu.
+                res.status(500).json({ error: 'Sähköpostin lähetys epäonnistui' });
             } else if (results.length > 0) {
                 const userEmail = results[0].email;
                 sendEmail(
@@ -360,9 +363,15 @@ app.put('/vahvista-varaus/:varausID', (req, res) => {
                     'Pöytävarauksesi on vahvistettu',
                     'Pöytävarauksesi on nyt vahvistettu.',
                     '<h1>Pöytävarauksesi on vahvistettu</h1><p>Pöytävarauksesi on nyt vahvistettu. Odotamme innolla tapaamistasi!</p>'
-                );
+                ).then(() => {
+                    res.json({ message: 'Varaus vahvistettu ja sähköposti lähetetty.' });
+                }).catch(error => {
+                    console.error('Sähköpostin lähetys epäonnistui: ' + error);
+                    res.status(500).json({ error: 'Sähköpostin lähetys epäonnistui' });
+                });
             } else {
                 console.error('Käyttäjän sähköpostiosoite ei löytynyt.');
+                res.status(404).json({ message: 'Käyttäjän sähköpostiosoite ei löytynyt.' });
             }
         });
 
