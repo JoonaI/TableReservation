@@ -266,6 +266,25 @@ app.post('/varaa-poyta', (req, res) => {
             res.status(500).json({ error: 'Varauksen lisääminen epäonnistui' });
             return;
         }
+
+        connection.query('SELECT email FROM Users WHERE id = ?', [userId], (error, results) => {
+            if (error) {
+                console.error('Virhe käyttäjän sähköpostiosoitteen haussa: ' + error.stack);
+                // Tässä voi päättää, mitä tehdä jos sähköpostiosoitteen haku epäonnistuu.
+            } else if (results.length > 0) {
+                const userEmail = results[0].email;
+                sendEmail(
+                    userEmail,
+                    'Pöytävarauksesi odottaa vahvistusta',
+                    'Pöytävarauksesi on vastaanotettu ja odottaa henkilökunnan vahvistusta.',
+                    '<h1>Pöytävarauksesi odottaa vahvistusta</h1><p>Pöytävarauksesi on vastaanotettu ja odottaa henkilökunnan vahvistusta.</p>'
+                );
+            } else {
+                console.error('Käyttäjän sähköpostiosoite ei löytynyt.');
+            }
+        });
+
+
         console.log('Varaus lisätty onnistuneesti.');
         res.json({ message: 'Pöytä varattu ja varaus lisätty onnistuneesti' });
     });
@@ -329,6 +348,24 @@ app.put('/vahvista-varaus/:varausID', (req, res) => {
             res.status(500).json({ error: 'Varauksen vahvistaminen epäonnistui' });
             return;
         }
+
+        connection.query('SELECT u.email FROM Users u JOIN varaus v ON u.id = v.user_id WHERE v.varaus_id = ?', [varausID], (error, results) => {
+            if (error) {
+                console.error('Virhe käyttäjän sähköpostiosoitteen haussa: ' + error.stack);
+                // Tässä voi päättää, mitä tehdä jos sähköpostiosoitteen haku epäonnistuu.
+            } else if (results.length > 0) {
+                const userEmail = results[0].email;
+                sendEmail(
+                    userEmail,
+                    'Pöytävarauksesi on vahvistettu',
+                    'Pöytävarauksesi on nyt vahvistettu.',
+                    '<h1>Pöytävarauksesi on vahvistettu</h1><p>Pöytävarauksesi on nyt vahvistettu. Odotamme innolla tapaamistasi!</p>'
+                );
+            } else {
+                console.error('Käyttäjän sähköpostiosoite ei löytynyt.');
+            }
+        });
+
         res.json({ message: 'Varaus vahvistettu' });
     });
 });

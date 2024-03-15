@@ -1,3 +1,4 @@
+require('dotenv').config();
 const nodemailer = require('nodemailer');
 
 const sendEmail = async (recipient, subject, text, html) => {
@@ -7,16 +8,16 @@ const sendEmail = async (recipient, subject, text, html) => {
         secureConnection: false, // Käytetään TLS:ää
         port: 587, // Standardi SMTP-portti
         tls: {
-          ciphers:'SSLv3'
+          ciphers: 'SSLv3'
         },
         auth: {
-            user: 'your-outlook-email@outlook.com', // Korvaa omalla Outlook-sähköpostiosoitteellasi
-            pass: 'your-outlook-password' // Korvaa omalla Outlook-salasanallasi
+            user: process.env.EMAIL_USER, // Käyttäen ympäristömuuttujaa Outlook-sähköpostiosoitteelle
+            pass: process.env.EMAIL_PASS // Käyttäen ympäristömuuttujaa Outlook-salasanalle
         }
     });
 
     const mailOptions = {
-        from: 'your-outlook-email@outlook.com', // Lähettäjän sähköpostiosoite
+        from: process.env.EMAIL_USER, // Lähettäjän sähköpostiosoite, käyttäen ympäristömuuttujaa
         to: recipient, // Vastaanottajan sähköpostiosoite
         subject: subject, // Sähköpostin aihe
         text: text, // Viestin tekstisisältö
@@ -34,14 +35,3 @@ const sendEmail = async (recipient, subject, text, html) => {
 };
 
 module.exports = { sendEmail };
-
-
-
-/*
-seuraavalla funktiolla voi käyttää sendEmail-funktiota:
-
-const { sendEmail } = require('./email/emailService');
-
-sendEmail('recipient@example.com', 'Test Subject', 'This is the plain text body', '<h1>This is HTML body</h1>');
-
-*/
