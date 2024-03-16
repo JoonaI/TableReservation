@@ -128,12 +128,42 @@ app.delete('/peruuta-varaus/:varausID', (req, res) => {
         const query = 'DELETE FROM varaus WHERE varaus_id = ? AND user_id = ?';
         connection.query(query, [varausID, userId], (error, results) => {
             if (error) {
-                return res.status(500).json({ message: 'Varauksen poistaminen epäonnistui' });
+                console.error('Virhe varauksen peruuttamisessa: ' + error.stack);
+                return res.status(500).json({ error: 'Varauksen peruuttaminen epäonnistui' });
             }
             if (results.affectedRows === 0) {
                 return res.status(404).json({ message: 'Varausta ei löytynyt, tai se ei kuulu sinulle' });
             }
-            res.json({ message: 'Varaus peruutettu onnistuneesti' });
+            
+            connection.query('SELECT email FROM poytavaraus.users WHERE user_id = ?', [userId], (error, emailResults) => {
+                if (error) {
+                    console.error('Virhe käyttäjän sähköpostiosoitteen haussa: ' + error.stack);
+                    return res.status(500).json({ error: 'Sähköpostiosoitteen haku epäonnistui' });
+                } else if (emailResults.length > 0) {
+                    const userEmail = emailResults[0].email;
+                    
+                    const emailHtml = `
+                        <h1>Olet peruuttanut varauksesi</h1>
+                        <p>Olet peruuttanut varauksesi meidän ravintolassamme. Jos tämä oli virhe, voit tehdä uuden varauksen verkkosivuillamme.</p>
+                    `;
+
+                    sendEmail(
+                        userEmail,
+                        'Varauksesi on peruutettu',
+                        'Olet peruuttanut varauksesi meidän ravintolassamme.',
+                        emailHtml
+                    ).then(() => {
+                        return res.json({ message: 'Varaus peruutettu ja sähköposti lähetetty.' });
+                    }).catch(error => {
+                        console.error('Sähköpostin lähetys epäonnistui: ' + error);
+                        return res.status(500).json({ error: 'Sähköpostin lähetys epäonnistui' });
+                    });
+                } else {
+                    console.error('Käyttäjän sähköpostiosoite ei löytynyt.');
+                    return res.status(404).json({ message: 'Käyttäjän sähköpostiosoite ei löytynyt.' });
+                }
+            });
+
         });
     } catch (error) {
         res.status(401).json({ message: 'Virheellinen token' });
@@ -312,7 +342,7 @@ app.get('/varatut-poydat', (req, res) => {
 // Luodaan reitti varauksen muokkaamiselle
 app.put('/muokkaa-varausta/:poytaID', (req, res) => {
     const poytaID = req.params.poytaID;
-    const { poyta_id, kapasiteetti, lisatiedot } = req.body; // Uudet tiedot pöydälle
+    const { päivämäärä, aika, henkilömäärä, pöytä_id } = req.body; // Uudet tiedot varaukselle
 
     // Päivitetään tietokantaan varaus
     connection.query('UPDATE poytavaraus.pöytä SET pöytä_id = ?, kapasiteetti = ?, lisätiedot = ? WHERE pöytä_id = ?', [poyta_id, kapasiteetti, lisatiedot, poytaID], (error, results) => {
@@ -321,7 +351,41 @@ app.put('/muokkaa-varausta/:poytaID', (req, res) => {
             res.status(500).json({ error: 'Varauksen muokkaaminen epäonnistui' });
             return;
         }
-        res.json({ message: 'Varaus päivitetty' });
+        
+        connection.query('SELECT email FROM poytavaraus.users WHERE user_id = (SELECT user_id FROM poytavaraus.varaus WHERE varaus_id = ?)', [varausID], (error, emailResults) => {
+            if (error) {
+                console.error('Virhe käyttäjän sähköpostiosoitteen haussa: ' + error.stack);
+                return res.status(500).json({ error: 'Sähköpostiosoitteen haku epäonnistui' });
+            } else if (emailResults.length > 0) {
+                const userEmail = emailResults[0].email;
+                const formattedDate = new Date(päivämäärä).toISOString().split('T')[0].split('-').reverse().join('.'); // muuttaa päivämäärän muotoon pp.kk.vvvv
+                const formattedTime = aika.slice(0, 5); // poistaa sekunnit kellonajasta
+                
+                const emailHtml = `
+                    <h1>Olet muokannut varaustasi</h1>
+                    <p>Alla päivitetyt varauksen tiedot:</p>
+                    <p>Pöytä: ${pöytä_id}</p>
+                    <p>Päivämäärä: ${formattedDate}</p>
+                    <p>Kellonaika: ${formattedTime}</p>
+                    <p>Voit tarkastella tai muokata varaustasi vielä profiilistasi.</p>
+                `;
+
+                sendEmail(
+                    userEmail,
+                    'Varauksesi on päivitetty',
+                    'Olet muokannut varaustasi. Alla uudet varauksen tiedot.',
+                    emailHtml
+                ).then(() => {
+                    return res.json({ message: 'Varaus päivitetty ja sähköposti lähetetty.' });
+                }).catch(error => {
+                    console.error('Sähköpostin lähetys epäonnistui: ' + error);
+                    return res.status(500).json({ error: 'Sähköpostin lähetys epäonnistui' });
+                });
+            } else {
+                console.error('Käyttäjän sähköpostiosoite ei löytynyt.');
+                return res.status(404).json({ message: 'Käyttäjän sähköpostiosoite ei löytynyt.' });
+            }
+        });
     });
 });
 
@@ -351,31 +415,41 @@ app.put('/vahvista-varaus/:varausID', (req, res) => {
             return;
         }
 
-        connection.query('SELECT u.email FROM poytavaraus.users u JOIN poytavaraus.varaus v ON u.user_id = v.user_id WHERE v.varaus_id = ?', [varausID], (error, results) => {
+        connection.query('SELECT v.päivämäärä, v.aika, u.email, v.pöytä_id FROM poytavaraus.varaus v JOIN poytavaraus.users u ON v.user_id = u.user_id WHERE v.varaus_id = ?', [varausID], (error, results) => {
             if (error) {
                 console.error('Virhe käyttäjän sähköpostiosoitteen haussa: ' + error.stack);
                 // Tässä voi päättää, mitä tehdä jos sähköpostiosoitteen haku epäonnistuu.
                 res.status(500).json({ error: 'Sähköpostin lähetys epäonnistui' });
             } else if (results.length > 0) {
-                const userEmail = results[0].email;
+                const { päivämäärä, aika, email, pöytä_id } = results[0];
+                const formattedDate = päivämäärä.toISOString().split('T')[0].split('-').reverse().join('.'); // muuttaa päivämäärän muotoon pp:kk:vvvv
+                const formattedTime = aika.slice(0, 5); // poistaa sekunnit kellonajasta
+
+                const emailHtml = `
+                    <h1>Henkilökunta on vahvistanut varauksesi</h1>
+                    <p>Alla varauksen tiedot:</p>
+                    <p>Pöytä: ${pöytä_id}</p>
+                    <p>Päivämäärä: ${formattedDate}</p>
+                    <p>Kellonaika: ${formattedTime}</p>
+                    <p>Voit muokata varaustasi vielä profiilistasi. Odotamme innolla tapaamistasi!</p>
+                `;
+
                 sendEmail(
-                    userEmail,
-                    'Pöytävarauksesi on vahvistettu',
-                    'Pöytävarauksesi on nyt vahvistettu.',
-                    '<h1>Pöytävarauksesi on vahvistettu</h1><p>Pöytävarauksesi on nyt vahvistettu. Odotamme innolla tapaamistasi!</p>'
+                    email,
+                    'Varauksesi on vahvistettu',
+                    'Henkilökunta on vahvistanut varauksesi. Voit tarkastella varauksen tietoja profiilissasi.',
+                    emailHtml
                 ).then(() => {
-                    res.json({ message: 'Varaus vahvistettu ja sähköposti lähetetty.' });
+                    return res.json({ message: 'Varaus vahvistettu ja sähköposti lähetetty.' });
                 }).catch(error => {
                     console.error('Sähköpostin lähetys epäonnistui: ' + error);
-                    res.status(500).json({ error: 'Sähköpostin lähetys epäonnistui' });
+                    return res.status(500).json({ error: 'Sähköpostin lähetys epäonnistui' });
                 });
             } else {
                 console.error('Käyttäjän sähköpostiosoite ei löytynyt.');
                 res.status(404).json({ message: 'Käyttäjän sähköpostiosoite ei löytynyt.' });
             }
         });
-
-        res.json({ message: 'Varaus vahvistettu' });
     });
 });
 
