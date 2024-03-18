@@ -520,3 +520,6 @@ app.post('/logout', (req, res) => {
 app.listen(3000, () => {
     console.log('Palvelin käynnistetty porttiin 3000');
 });
+
+
+module.exports = app;
