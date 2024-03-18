@@ -1,5 +1,7 @@
 function updateHeaderAfterLogin() {
     const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username'); // Lisätty käyttäjänimen haku
+
     if (token) {
         document.getElementById('login-link').style.display = 'none';
         document.getElementById('register-link').style.display = 'none';
@@ -23,6 +25,7 @@ function updateHeaderAfterLogin() {
                 .then(data => {
                     alert(data.message);
                     localStorage.removeItem('token');
+                    localStorage.removeItem('username'); // Poistetaan myös käyttäjänimi uloskirjautuessa
                     window.location.href = 'index.html'; // Ohjaa käyttäjä etusivulle
                 })
                 .catch(error => {
@@ -31,6 +34,15 @@ function updateHeaderAfterLogin() {
             });
         }
         document.getElementById('login-form-header').style.display = 'none'; // Piilota kirjautumislomake, kun käyttäjä on kirjautunut sisään
+
+        // Lisätty tarkistus käyttäjänimen perusteella näytettävistä linkeistä
+        if (username === 'admin') {
+            document.getElementById('profile-link').style.display = 'none';
+            document.getElementById('admin-panel-link').style.display = 'block';
+        } else {
+            document.getElementById('admin-panel-link').style.display = 'none';
+            document.getElementById('profile-link').style.display = 'block';
+        }
     } else {
         // Kirjaudu ja Rekisteröidy linkit näkyvät, jos ei tokenia
         document.getElementById('login-link').style.display = 'block';

@@ -22,12 +22,11 @@
                 <li id="login-link"><a href="login.html">Kirjaudu</a></li>
                 <li id="register-link"><a href="register.html">Rekisteröidy</a></li>
                 <!-- Nämä linkit näkyvät vain, kun käyttäjä on kirjautunut sisään -->
-                <li class="user-specific" style="display:none;"><a href="profile.html">Oma profiili</a></li>
-                <li class="user-specific" style="display:none;"><a href="hallintapaneeli.html">Hallintapaneeli</a></li>
+                <li id="profile-link" class="user-specific" style="display:none;"><a href="profile.html">Oma profiili</a></li>
+                <li id="admin-panel-link" class="user-specific" style="display:none;"><a href="hallintapaneeli.html">Hallintapaneeli</a></li>
             </ul>
         </nav>
         <!-- Kirjautumislomake, joka näytetään vain, kun käyttäjä ei ole kirjautunut sisään -->
-
         <form id="login-form-header" style="display:none;">
             <label for="login-username">Käyttäjänimi:</label>
             <input type="text" id="login-username" required>   
