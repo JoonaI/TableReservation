@@ -125,6 +125,42 @@
             })
             .catch(error => console.error('Virhe haettaessa varauksia:', error));
 
+            window.muokkaaVarausta = function(varaus_id) {
+                const uusiPäivämäärä = prompt("Anna uusi päivämäärä (muodossa VVVV-KK-PP):");
+                const uusiAika = prompt("Anna uusi aika (muodossa TT:MM):");
+                const uusiHenkilömäärä = prompt("Anna uusi henkilömäärä:");
+                
+                if (!uusiPäivämäärä || !uusiAika || !uusiHenkilömäärä) {
+                    alert("Kaikki tiedot ovat pakollisia.");
+                    return;
+                }
+
+                fetch('/muokkaa-varausta/' + varaus_id, {
+                    method: 'PUT', // Käyttää PUT-metodia
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ päivämäärä: uusiPäivämäärä, aika: uusiAika, henkilömäärä: uusiHenkilömäärä })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Varauksen muokkaaminen epäonnistui');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert(data.message);
+                    // Päivitä sivu näyttämään muutokset
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Virhe:', error);
+                    alert('Varauksen muokkaus epäonnistui: ' + error.message);
+                });
+            };
+
+
             // Peruuta varaus -funktio
             window.peruVaraus = function(varaus_id) {
                 var varmistus = confirm("Haluatko varmasti peruuttaa tämän varauksen?");
