@@ -200,6 +200,59 @@ app.delete('/peruuta-varaus/:varausID', (req, res) => {
     }
 });
 
+// Luodaan reitti salasanan resetointi-tokenin luomiseksi ja lähettämiseksi
+app.post('/reset-password', async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        return res.status(400).json({ message: 'Sähköposti on pakollinen' });
+    }
+
+    connection.query('SELECT * FROM Users WHERE email = ?', [email], async (error, results) => {
+        if (error || results.length === 0) {
+            return res.status(404).json({ message: 'Sähköpostiosoitetta ei löydy' });
+        }
+        const user = results[0];
+        
+        // Luo resetointi-token ja sen vanhentumisaika
+        const resetToken = jwt.sign({ userId: user.user_id }, JWT_SECRET, { expiresIn: '1h' });
+        
+        // Lähetä sähköposti käyttäjälle
+        const resetLink = `http://localhost:3000/new-password-page.html?token=${resetToken}`;
+        await sendEmail(
+            email,
+            'Salasanan resetointi',
+            'Olet pyytänyt salasanasi resetointia. Voit vaihtaa salasanasi käyttämällä alla olevaa linkkiä.',
+            `<p>Voit vaihtaa salasanasi käyttämällä <a href="${resetLink}">tätä linkkiä</a>. Linkki on voimassa 1 tunnin.</p>`
+        );
+
+        res.json({ message: 'Mikäli sähköpostiosoitteellasi on luotu tili, saat pian linkin salasanan resetointiin.' });
+    });
+});
+
+// Luodaan reitti uuden salasanan asettamiseksi
+app.post('/new-password', async (req, res) => {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+        return res.status(400).json({ message: 'Token ja uusi salasana ovat pakollisia' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+
+        const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+        connection.query('UPDATE Users SET password = ? WHERE user_id = ?', [hashedPassword, userId], (error, results) => {
+            if (error) {
+                return res.status(500).json({ message: 'Virhe salasanan päivittämisessä' });
+            }
+            res.json({ message: 'Salasana päivitetty onnistuneesti' });
+        });
+    } catch (error) {
+        res.status(401).json({ message: 'Virheellinen tai vanhentunut token' });
+    }
+});
+
 const path = require('path');
 const { error } = require('console');
 
