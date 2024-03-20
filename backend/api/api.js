@@ -539,10 +539,21 @@ app.put('/vahvista-varaus/:varausID', (req, res) => {
 
 // Luodaan reitti suosituimpien varausaikojen hakemiselle
 app.get('/raportit/suosituimmat-ajat', (req, res) => {
-    const sql = `SELECT aika, COUNT(*) AS varausmaara FROM varaus GROUP BY aika ORDER BY varausmaara DESC LIMIT 5`;
+    const sql = `
+        SELECT 
+            DAYNAME(päivämäärä) as viikonpäivä, 
+            DATE_FORMAT(aika, '%H:%i') as kellonaika, 
+            COUNT(*) AS varauksien_maara, 
+            AVG(henkilömäärä) AS keskiarvo_henkilomaara
+        FROM varaus
+        WHERE päivämäärä BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()
+        GROUP BY DAYNAME(päivämäärä), DATE_FORMAT(aika, '%H:%i')
+        ORDER BY varauksien_maara DESC, kellonaika
+        LIMIT 10;
+    `;
     connection.query(sql, (error, results) => {
         if (error) {
-            res.status(500).json({ message: 'Tietokantavirhe' });
+            res.status(500).json({ message: 'Tietokantavirhe', error: error });
         } else {
             res.json(results);
         }

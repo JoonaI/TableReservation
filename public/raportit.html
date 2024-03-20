@@ -16,7 +16,7 @@
         <section>
             <h2>Ravintolan Raportit</h2>
             <div id="suosituimmat-ajat-container">
-                <h3>Suosituimmat varausajat</h3>
+                <h3>Tarkemmat suosituimmat varausajat</h3>
                 <ul id="suosituimmat-ajat-lista">
                     <!-- Tähän listaan lisätään suosituimmat varausajat JavaScriptin avulla -->
                 </ul>
@@ -36,7 +36,7 @@
                     document.getElementById('header-placeholder').innerHTML = data;
                     updateHeaderAfterLogin();
                 });
-        
+
             // Ladataan suosituimmat varausajat palvelimelta
             fetch('http://localhost:3000/raportit/suosituimmat-ajat', {
                 headers: {
@@ -51,26 +51,25 @@
             })
             .then(data => {
                 const lista = document.getElementById('suosituimmat-ajat-lista');
-                lista.innerHTML = '';
+                lista.innerHTML = ''; // Tyhjennetään lista ensin
                 data.forEach(item => {
                     const li = document.createElement('li');
-                    li.textContent = `Aika: ${item.aika}, Varauksia: ${item.varausmaara}`;
+                    li.textContent = `Viikonpäivä: ${item.viikonpäivä}, Kellonaika: ${item.kellonaika}, Varauksia: ${item.varauksien_maara}, Keskimääräinen henkilömäärä: ${item.keskiarvo_henkilomaara.toFixed(2)}`;
                     lista.appendChild(li);
                 });
             })
             .catch(error => {
                 console.error('Virhe haettaessa tietoja:', error);
-                // Lisätään virheilmoitus sivulle, jotta se on näkyvissä myös käyttäjälle
                 document.getElementById('suosituimmat-ajat-lista').innerHTML = `<li>Virhe tietoja haettaessa: ${error.message}</li>`;
             });
-        
+
             document.addEventListener('click', function(event) {
                 if (event.target.id === 'reset-password-button') {
                     window.location.href = 'reset-password-page.html';
                 }
             });
         });
-        </script>
+    </script>
 </body>
 
 </html>
