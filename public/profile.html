@@ -113,9 +113,14 @@
                 varauksetLista.innerHTML = ''; // Tyhjennä lista ennen uusien varauksien lisäämistä
                 // Lisää jokainen varaus listaan
                 varaukset.forEach(varaus => {
+                    // Muunnetaan ISO 8601 -muotoinen päivämäärä JavaScriptin Date-objektiksi
+                    const date = new Date(varaus.päivämäärä);
+                    // Muunnetaan päivämäärä haluttuun muotoon
+                    const formattedDate = date.toLocaleDateString(); // Tässä muodossa "kk/pp/vvvv"
+
                     varauksetLista.innerHTML += `
                         <li>
-                            Varaus ID: ${varaus.varaus_id}, Päivämäärä: ${varaus.päivämäärä}, Aika: ${varaus.aika},
+                            Varaus ID: ${varaus.varaus_id}, Päivämäärä: ${formattedDate}, Aika: ${varaus.aika},
                             Henkilömäärä: ${varaus.henkilömäärä}, Erikoispyynnöt: ${varaus.erikoispyynnot || ''},
                             Lisätiedot: ${varaus.lisatiedot || ''}, Tilaisuus: ${varaus.tilaisuus || ''}
                             <button onclick="muokkaaVarausta(${varaus.varaus_id})">Muokkaa</button>
