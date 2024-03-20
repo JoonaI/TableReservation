@@ -39,8 +39,10 @@ function updateHeaderAfterLogin() {
         if (username === 'admin') {
             document.getElementById('profile-link').style.display = 'none';
             document.getElementById('admin-panel-link').style.display = 'block';
+            document.getElementById('raportit-link').style.display = 'block';
         } else {
             document.getElementById('admin-panel-link').style.display = 'none';
+            document.getElementById('raportit-link').style.display = 'none';
             document.getElementById('profile-link').style.display = 'block';
         }
     } else {

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raportit - Ravintola Ryhmä C</title>
+    <script src="common.js" defer></script>
+</head>
+
+<body>
+    <div id="header-placeholder"></div>
+
+    <main>
+        <section>
+            <h2>Ravintolan Raportit</h2>
+            <div id="suosituimmat-ajat-container">
+                <h3>Suosituimmat varausajat</h3>
+                <ul id="suosituimmat-ajat-lista">
+                    <!-- Tähän listaan lisätään suosituimmat varausajat JavaScriptin avulla -->
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Ravintola Ryhmä C</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('header-placeholder').innerHTML = data;
+                    updateHeaderAfterLogin();
+                });
+        
+            // Ladataan suosituimmat varausajat palvelimelta
+            fetch('http://localhost:3000/raportit/suosituimmat-ajat', {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const lista = document.getElementById('suosituimmat-ajat-lista');
+                lista.innerHTML = '';
+                data.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `Aika: ${item.aika}, Varauksia: ${item.varausmaara}`;
+                    lista.appendChild(li);
+                });
+            })
+            .catch(error => {
+                console.error('Virhe haettaessa tietoja:', error);
+                // Lisätään virheilmoitus sivulle, jotta se on näkyvissä myös käyttäjälle
+                document.getElementById('suosituimmat-ajat-lista').innerHTML = `<li>Virhe tietoja haettaessa: ${error.message}</li>`;
+            });
+        
+            document.addEventListener('click', function(event) {
+                if (event.target.id === 'reset-password-button') {
+                    window.location.href = 'reset-password-page.html';
+                }
+            });
+        });
+        </script>
+</body>
+
+</html>

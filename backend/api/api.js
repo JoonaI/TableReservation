@@ -537,6 +537,18 @@ app.put('/vahvista-varaus/:varausID', (req, res) => {
 });
 
 
+// Luodaan reitti suosituimpien varausaikojen hakemiselle
+app.get('/raportit/suosituimmat-ajat', (req, res) => {
+    const sql = `SELECT aika, COUNT(*) AS varausmaara FROM varaus GROUP BY aika ORDER BY varausmaara DESC LIMIT 5`;
+    connection.query(sql, (error, results) => {
+        if (error) {
+            res.status(500).json({ message: 'Tietokantavirhe' });
+        } else {
+            res.json(results);
+        }
+    });
+});
+
 //Luodaan reitti rekisteröintilomakkeen lähetykselle: 
 app.post('/register', async (req, res) => {
     const { etunimi, sukunimi, email, username, password } = req.body;
