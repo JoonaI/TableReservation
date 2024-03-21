@@ -79,9 +79,9 @@
     <script>
         //Asetetaan nykyinen päivämäärä input-kentän min-attribuutiksi, jotta käyttäjä ei voi valita menneitä päivämääriä
         document.getElementById('pvm').min = new Date().toISOString().split('T')[0];
-        //Asetetaan nykyinen kellonaika minimiarvoksi aika-kentälle
+        //Asetetaan nykyinen kellonaika +1 tunti minimiarvoksi aika-kentälle
         const now = new Date();
-        const hours = now.getHours().toString().padStart(2, '0');
+        const hours = (now.getHours() +1);
         const minutes = now.getMinutes().toString().padStart(2, '0');
         document.getElementById('aika').min = `${hours}:${minutes}`;
         // Estetään lomakkeen oletustoiminto ja lähetetään tiedot AJAX-pyynnöllä
