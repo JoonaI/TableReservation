@@ -43,6 +43,23 @@
                 <label for="henkilomaara">Henkilömäärä:</label>
                 <input type="number" id="henkilomaara" name="henkilomaara" min="1" required><br><br>
                 <input type="submit" id="tarkista-saatavuus" value="Tarkista saatavuus">
+
+                <label for="erikoispyynnot">Erikoispyynnöt (esim. allergiat, ruokavaliorajoitukset):</label>
+                <textarea id="erikoispyynnot" name="erikoispyynnot"></textarea><br><br>
+
+                <label for="lisatiedot">Lisäpalvelupyynnöt (esim. kukat pöydälle, sijainti):</label>
+                <textarea id="lisatiedot" name="lisatiedot"></textarea><br><br>
+
+                <label for="tilaisuus">Tilaisuus:</label>
+                <select id="tilaisuus" name="tilaisuus">
+                    <option value="">Valitse...</option>
+                    <option value="syntymapaiva">Syntymäpäivä</option>
+                    <option value="hääjuhla">Hääjuhla</option>
+                    <option value="valmistujaiset">Valmistujaiset</option>
+                    <option value="merkkipaiva">Merkkipäivä</option>
+                </select><br><br>
+                
+
             </form>
         </section>
         <section id="vapaat-poydat">
@@ -95,7 +112,10 @@
                 body: JSON.stringify({
                     pvm: formattedDate,
                     aika: document.getElementById('aika').value,
-                    henkilomaara: henkilomaara
+                    henkilomaara: henkilomaara,
+                    erikoispyynnot: document.getElementById('erikoispyynnot').value,
+                    lisatiedot: document.getElementById('lisatiedot').value,
+                    tilaisuus: document.getElementById('tilaisuus').value
                 })
 
 
@@ -157,7 +177,11 @@
                                     pöytä_id: varattavaPoytaId,
                                     pvm: pvm,
                                     aika: document.getElementById('aika').value,
-                                    henkilomaara: henkilomaara
+                                    henkilomaara: henkilomaara,
+                                    erikoispyynnot: document.getElementById('erikoispyynnot').value,
+                                    lisatiedot: document.getElementById('lisatiedot').value,
+                                    tilaisuus: document.getElementById('tilaisuus').value
+                                    
                                 })
                             })
 

@@ -366,6 +366,9 @@ app.post('/varaa-poyta', (req, res) => {
     const aika = req.body.aika;
     const loppumisaika = new Date(`1970-01-01T${aika}Z`); // Lisätään varauksen loppumisaika
     loppumisaika.setHours(loppumisaika.getHours() + 2); // Lisätään varauksen loppumisaika
+    const erikoispyynnot = req.body.erikoispyynnot;
+    const lisatiedot = req.body.lisatiedot;
+    const tilaisuus = req.body.tilaisuus;
 
     const varausData = {
         päivämäärä: req.body.pvm,
@@ -373,7 +376,10 @@ app.post('/varaa-poyta', (req, res) => {
         loppumisaika: loppumisaika.toISOString().split('T')[1].split('Z')[0],
         henkilömäärä: req.body.henkilomaara,
         user_id: userId,
-        pöytä_id: pöytä_id
+        pöytä_id: pöytä_id,
+        erikoispyynnöt: erikoispyynnot,
+        lisätiedot: lisatiedot,
+        tilaisuus: tilaisuus
     };
     connection.query('INSERT INTO varaus SET ?', varausData, (error, results) => {
         if (error) {
