@@ -417,7 +417,7 @@ module.exports = {
 
 //Luodaan reitti varattujen pöytien hakemiselle hallintapaneelia varten
 app.get('/varatut-poydat', (req, res) => {
-    connection.query('SELECT p.*, v.päivämäärä, v.aika, v.varaus_id FROM poytavaraus.pöytä p JOIN poytavaraus.varaus v ON p.pöytä_id = v.pöytä_id', (error, results) => {
+    connection.query('SELECT p.*, v.päivämäärä, v.aika, v.varaus_id, v.erikoispyynnöt, v.lisätiedot, v.tilaisuus FROM poytavaraus.pöytä p JOIN poytavaraus.varaus v ON p.pöytä_id = v.pöytä_id', (error, results) => {
         if (error) {
             console.error('Virhe tietokantakyselyssä: ' + error.stack);
             res.status(500).json({ error: 'Pöytien haku epäonnistui' });
