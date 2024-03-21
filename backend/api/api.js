@@ -570,6 +570,18 @@ app.get('/raportit/suosituimmat-ajat', (req, res) => {
 app.post('/register', async (req, res) => {
     const { etunimi, sukunimi, email, username, password } = req.body;
 
+    //tarkistetaan onko käyttäjänimi tai salasana jo käytössä
+    connection.query('SELECT * FROM Users WHERE username = ? OR email = ?', [username, email], async (error, results) => {
+        if (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Virhe tietokannan kyselyssä' });
+        }
+
+        if (results.length > 0) {
+            // Käyttäjänimi tai sähköpostiosoite on jo käytössä
+            return res.status(400).json({ message: 'Käyttäjänimi tai sähköpostiosoite on jo käytössä' });
+        }
+
     const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
     /*
     if (!passwordRegex.test(password)) {
@@ -595,6 +607,7 @@ app.post('/register', async (req, res) => {
         console.error('Salasanan hashauksessa tapahtui virhe:', error);
         res.status(500).json({ message: 'Virhe käyttäjän rekisteröinnissä' });
     }
+});
 });
 
 // Kirjautumisreitti
