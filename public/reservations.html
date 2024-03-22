@@ -35,14 +35,14 @@
             <p class="alaotsikko">Tällä sivulla pääset tekemään pöytävarauksen!</p>
             <form id="varaus-form" method="POST">
                 <label for="pvm">Päivämäärä:</label>
-                <input type="date" id="pvm" name="pvm" min ="" required><br><br>
+                <input type="date" id="pvm" name="pvm" min="" required><br><br>
 
                 <label for="aika">Aika:</label>
                 <input type="time" id="aika" name="aika" min="" required><br><br>
 
                 <label for="henkilomaara">Henkilömäärä:</label>
                 <input type="number" id="henkilomaara" name="henkilomaara" min="1" required><br><br>
-                
+
 
                 <label for="erikoispyynnot">Erikoispyynnöt (esim. allergiat, ruokavaliorajoitukset):</label>
                 <textarea id="erikoispyynnot" name="erikoispyynnot"></textarea><br><br>
@@ -59,7 +59,7 @@
                     <option value="merkkipaiva">Merkkipäivä</option>
                 </select><br><br>
                 <input type="submit" id="tarkista-saatavuus" value="Tarkista saatavuus">
-                
+
 
             </form>
         </section>
@@ -80,15 +80,29 @@
     <script>
         //Asetetaan nykyinen päivämäärä input-kentän min-attribuutiksi, jotta käyttäjä ei voi valita menneitä päivämääriä
         document.getElementById('pvm').min = new Date().toISOString().split('T')[0];
-        //Asetetaan nykyinen kellonaika +1 tunti minimiarvoksi aika-kentälle
-        const now = new Date();
-        const hours = (now.getHours() +1);
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        document.getElementById('aika').min = `${hours}:${minutes}`;
+        document.getElementById('pvm').addEventListener('change', function () {
+            var now = new Date();
+            var selectedDate = new Date(this.value);
+            // Tarkista, onko valittu päivämäärä sama kuin nykyinen päivämäärä
+            if (selectedDate.setHours(0, 0, 0, 0) === now.setHours(0, 0, 0, 0)) {
+                // Jos on, aseta aika-kentän minimiarvoksi nykyinen kellonaika +1 tunti
+                const now = new Date();
+                const selectedPvm = document.getElementById('pvm').value;
+                const hours = (now.getHours() + 1);
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                document.getElementById('aika').min = `${hours}:${minutes}`;
+            } else {
+                // Jos ei, salli minkä tahansa kellonajan valinta
+                document.getElementById('aika').min = '';
+            }
+        });
+
+
+
         // Estetään lomakkeen oletustoiminto ja lähetetään tiedot AJAX-pyynnöllä
         document.getElementById('varaus-form').addEventListener('submit', function (event) {
             event.preventDefault(); // Estetään lomakkeen oletustoiminto
-            
+
             const selectedDate = document.getElementById('pvm').value;
             // Muodostetaan päivämäärä Date-objektiksi
             const dateObject = new Date(selectedDate);
@@ -189,7 +203,7 @@
                                     erikoispyynnot: document.getElementById('erikoispyynnot').value,
                                     lisatiedot: document.getElementById('lisatiedot').value,
                                     tilaisuus: document.getElementById('tilaisuus').value
-                                    
+
                                 })
                             })
 
