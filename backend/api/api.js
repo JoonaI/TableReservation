@@ -66,6 +66,33 @@ app.get('/profile', (req, res) => {
     }
 });
 
+// Hae ravintolan aukioloajat
+app.get('/paivita-aukioloajat', (req, res) => {
+    connection.query('SELECT avausaika, sulkuaika FROM aukiolo', (error, results) => {
+        if (error) {
+            return res.status(500).json({ message: 'Aukioloaikojen hakeminen epäonnistui' });
+        }
+        res.json(results);
+    });
+});
+
+// Päivitä aukioloajat tietokantaan
+app.put('/paivita-aukioloajat', (req, res) => {
+    const { avausaika, sulkuaika } = req.body;
+    console.log('Saapuneet tiedot:', avausaika, sulkuaika); // Lisää tämä rivi
+
+    if (!avausaika || !sulkuaika) {
+        return res.status(400).json({ message: 'Aukioloaikoja ei ole annettu' });
+    }
+
+    connection.query('UPDATE aukiolo SET avausaika = ?, sulkuaika =?', [avausaika, sulkuaika], (error, results) => {
+        if (error) {
+            return res.status(500).json({ message: 'Aukioloaikojen päivittäminen epäonnistui' });
+        }
+        res.json({ message: 'Aukioloajat päivitetty onnistuneesti' });
+    });
+});
+
 // Päivitä kirjautuneen käyttäjän profiilitiedot
 app.put('/profile', (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];

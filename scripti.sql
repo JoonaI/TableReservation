@@ -119,6 +119,7 @@ INSERT INTO `poytavaraus`.`pöytä` (`pöytä_id`, `kapasiteetti`, `lisätiedot`
 INSERT INTO `poytavaraus`.`pöytä` (`pöytä_id`, `kapasiteetti`, `lisätiedot`) VALUES (7, 4, 'Käytävä');
 INSERT INTO `poytavaraus`.`pöytä` (`pöytä_id`, `kapasiteetti`, `lisätiedot`) VALUES (8, 2, 'Keittiön vierus');
 INSERT INTO `poytavaraus`.`pöytä` (`pöytä_id`, `kapasiteetti`, `lisätiedot`) VALUES (9, 4, 'Ikkunapaikka');
+INSERT INTO aukiolo (avausaika, sulkuaika) VALUES ('10:00:00', '21:00:00');
 
 COMMIT;
 
