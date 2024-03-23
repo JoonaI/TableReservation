@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raportit - Ravintola Ryhmä C</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="common.js" defer></script>
 </head>
 
@@ -22,6 +23,9 @@
                 </ul>
             </div>
         </section>
+        <div class="chart-container" style="position: relative; height:40vh; width:80vw">
+            <canvas id="varausKaavio"></canvas>
+        </div>
     </main>
 
     <footer>
@@ -29,14 +33,14 @@
     </footer>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             fetch('header.html')
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('header-placeholder').innerHTML = data;
                     updateHeaderAfterLogin();
                 });
-
+    
             // Ladataan suosituimmat varausajat palvelimelta
             fetch('http://localhost:3000/raportit/suosituimmat-ajat', {
                 headers: {
@@ -57,19 +61,61 @@
                     li.textContent = `Viikonpäivä: ${item.viikonpäivä}, Kellonaika: ${item.kellonaika}, Varauksia: ${item.varauksien_maara}, Keskimääräinen henkilömäärä: ${item.keskiarvo_henkilomaara.toFixed(2)}`;
                     lista.appendChild(li);
                 });
+    
+                // Tässä luodaan kaavio vastaanotetulla datalla
+                const labels = data.map(item => `${item.viikonpäivä} ${item.kellonaika}`);
+                const varauksia = data.map(item => item.varauksien_maara);
+                const henkilomaarat = data.map(item => item.keskiarvo_henkilomaara);
+    
+                // Luo uusi Chart.js-kaavio
+                var ctx = document.getElementById('varausKaavio').getContext('2d');
+                var varausKaavio = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Varausten määrä',
+                            data: varauksia,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }, {
+                            label: 'Keskimääräinen henkilömäärä',
+                            data: henkilomaarat,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1,
+                            type: 'line',
+                            yAxisID: 'y-axis-2'
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            },
+                            'y-axis-2': {
+                                type: 'linear',
+                                display: true,
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
             })
             .catch(error => {
                 console.error('Virhe haettaessa tietoja:', error);
                 document.getElementById('suosituimmat-ajat-lista').innerHTML = `<li>Virhe tietoja haettaessa: ${error.message}</li>`;
             });
-
-            document.addEventListener('click', function(event) {
+    
+            document.addEventListener('click', function (event) {
                 if (event.target.id === 'reset-password-button') {
                     window.location.href = 'reset-password-page.html';
                 }
             });
         });
     </script>
+    
 </body>
 
 </html>
