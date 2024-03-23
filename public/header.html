@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fi">
 
 <head>
     <meta charset="UTF-8">
@@ -25,24 +25,22 @@
                 <li id="profile-link" class="user-specific" style="display:none;"><a href="profile.html">Oma profiili</a></li>
                 <li id="admin-panel-link" class="user-specific" style="display:none;"><a href="hallintapaneeli.html">Hallintapaneeli</a></li>
                 <li id="raportit-link" class="user-specific" style="display:none;"><a href="raportit.html">Raportit</a></li>
-
             </ul>
         </nav>
         <!-- Kirjautumislomake, joka näytetään vain, kun käyttäjä ei ole kirjautunut sisään -->
-        <form id="login-form-header" style="display:none;">
-            <label for="login-username">Käyttäjänimi:</label>
-            <input type="text" id="login-username" required>   
-            <label for="login-password">Salasana:</label>
-            <input type="password" id="login-password" required>         
+        <form id="header-login-form" style="display:none;" onsubmit="handleHeaderLoginFormSubmit(event)">
+            <label for="header-login-username">Käyttäjänimi:</label>
+            <input type="text" id="header-login-username" required>   
+            <label for="header-login-password">Salasana:</label>
+            <input type="password" id="header-login-password" required>         
             <button type="submit">Kirjaudu sisään</button>
-            <button type="button" id="reset-password-button">Resetoi salasana</button>
+            <button type="button" id="header-reset-password-button">Resetoi salasana</button>
         </form>
         <!-- Kirjaudu ulos -painike, joka näytetään vain, kun käyttäjä on kirjautunut sisään -->
-        <button id="logout-button" style="display:none;">Kirjaudu ulos</button>
+        <button id="logout-button" class="user-specific" style="display:none;">Kirjaudu ulos</button>
     </header>
 
     <div id="modal-container"></div>
-
 </body>
 
 </html>
