@@ -6,6 +6,7 @@ const upload = multer();
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
+const schedule = require('node-schedule');
 const JWT_SECRET = 'salainenAvain'; // muokkaa myöhemmin
 const { sendEmail } = require('../../email/emailService');
 
@@ -608,6 +609,47 @@ app.put('/vahvista-varaus/:varausID', (req, res) => {
     });
 });
 
+// Lisätään funktio muistutusten lähettämiseen tulevista varauksista
+function sendReservationReminders() {
+    const twoHoursLater = new Date();
+    twoHoursLater.setHours(twoHoursLater.getHours() + 2);
+
+    const query = `
+        SELECT v.varaus_id, u.email, v.päivämäärä, v.aika
+        FROM varaus v
+        JOIN users u ON v.user_id = u.user_id
+        WHERE v.päivämäärä = CURDATE() AND 
+              v.aika BETWEEN CURTIME() AND ADDTIME(CURTIME(), '2:00:00');
+    `;
+
+    connection.query(query, (error, results) => {
+        if (error) {
+            console.error('Virhe varauksien haussa: ', error);
+            return;
+        }
+
+        results.forEach(varaus => {
+            const emailHtml = `
+                <h1>Muistutus varauksestasi</h1>
+                <p>Muistutamme, että sinulla on varaus ravintolassamme tänään klo ${varaus.aika.substring(0, 5)}.</p>
+                <p>Jos sinulla on kysyttävää varauksestasi, ota meihin yhteyttä.</p>
+            `;
+
+            sendEmail(
+                varaus.email,
+                'Muistutus tulevasta varauksestasi',
+                'Sinulla on varaus meidän ravintolassamme tänään.',
+                emailHtml
+            );
+        });
+    });
+}
+
+// Aikataulutetaan muistutusten lähetys suoritettavaksi viisi minuuttia yli jokaisen täyden tunnin
+schedule.scheduleJob('5 * * * *', function() {
+    console.log('Suoritetaan varausmuistutusten lähetys joka tunti viisi minuuttia yli...');
+    sendReservationReminders();
+});
 
 // Luodaan reitti suosituimpien varausaikojen hakemiselle
 app.get('/raportit/suosituimmat-ajat', (req, res) => {
