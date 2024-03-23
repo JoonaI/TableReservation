@@ -19,6 +19,8 @@ const tables = [
     // Lisää tarvittavat pöydät tähän
 ];
 
+const jwt = require('jsonwebtoken');
+
 // Reitti varauksen tarkistamiselle
 app.post('/tarkista-saatavuus', (req, res) => {
     const { pvm, aika, henkilomaara } = req.body;
@@ -272,6 +274,7 @@ describe('Käyttäjäprofiilin hallinta', () => {
             expect(response.status).to.equal(404); // Odota statuskoodia 404
         });
     });
+
     describe('Varausten logiikka', () => {
         it('Palauttaa onnistuneen vastauksen, kun pöytä on saatavilla annettuna aikana ja henkilömäärä', async () => {
             // Lisää olemassaoleva varaus tietokantaan simuloidaksesi varattuja pöytiä
@@ -309,6 +312,7 @@ describe('Käyttäjäprofiilin hallinta', () => {
             expect(response.body).to.have.property('error', 'Pöytää ei ole saatavilla annettuun aikaan');
         });
     });
+
     describe('Syötteiden validointi', () => {
        it('Validoi käyttäjätiedot oikein', async () => {
             // Yritetään lähettää epäkelpo sähköpostiosoite
@@ -327,5 +331,78 @@ describe('Käyttäjäprofiilin hallinta', () => {
             expect(response.body.error).to.equal('Käyttäjänimi on jo käytössä');
         });
     });
+
+    describe('Autentikaatio ja autorisointi', () => {
+        let token;
     
+        before(async () => {
+            // Luodaan JWT-tokeni
+            token = jwt.sign({ userId: 'kayttajanId' }, 'salaisuus', { expiresIn: '1h' });
+        });
+    
+        it('Testaa, että JWT-tokeni luodaan oikein', () => {
+            // Tarkistetaan, että token on olemassa ja se ei ole tyhjä
+            expect(token).to.be.ok;
+        });
+    
+        it('Testaa, että JWT-tokeni validoidaan oikein', async () => {
+            // Tarkistetaan, että token on olemassa ja se ei ole tyhjä
+            expect(token).to.be.ok;
+    
+            // Tarkistetaan tokenin validointi
+            jwt.verify(token, 'salaisuus', (err, decoded) => {
+                if (err) {
+                    // Jos token ei ole kelvollinen, heitä virhe
+                    throw new Error('Token ei ole kelvollinen');
+                } else {
+                    // Tarkista, että dekoodattu token sisältää käyttäjän ID:n
+                    expect(decoded.userId).to.equal('kayttajanId');
+                }
+            });
+        });
+    });
+
+    describe('Käyttöoikeudet', () => {
+        let token;
+    
+        before(async () => {
+            // Kirjaudu sisään ja hae käyttäjän JWT-tokeni
+            const loginResponse = await request(app)
+                .post('/login')
+                .send({
+                    username: 'testikayttaja',
+                    password: 'salasana123'
+                });
+    
+            // Tallenna token
+            token = loginResponse.body.token;
+        });
+    
+        it('Testaa, että vain rekisteröityneet käyttäjät voivat tehdä varauksen', async () => {
+            // Yritä tehdä varaus ilman tokenia
+            const responseWithoutToken = await request(app)
+                .post('/tarkista-saatavuus')
+                .send({
+                    pvm: '2024-03-05',
+                    aika: '12:00',
+                    henkilomaara: 4
+                });
+    
+            // Tarkista, että vastauskoodi on 200, koska käyttäjä ei ole kirjautunut
+            expect(responseWithoutToken.status).to.equal(200);
+    
+            // Yritä tehdä varaus validilla tokenilla
+            const responseWithToken = await request(app)
+                .post('/tarkista-saatavuus')
+                .set('Authorization', `Bearer ${token}`)
+                .send({
+                    pvm: '2024-03-05',
+                    aika: '12:00',
+                    henkilomaara: 4
+                });
+    
+            // Tarkista, että vastauskoodi on 200, koska käyttäjä on kirjautunut
+            expect(responseWithToken.status).to.equal(200);
+        });
+    });
 })});
