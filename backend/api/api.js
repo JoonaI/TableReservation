@@ -191,14 +191,14 @@ app.delete('/peruuta-varaus/:varausID', (req, res) => {
             if (results.affectedRows === 0) {
                 return res.status(404).json({ message: 'Varausta ei löytynyt, tai se ei kuulu sinulle' });
             }
-            
+
             connection.query('SELECT email FROM poytavaraus.users WHERE user_id = ?', [userId], (error, emailResults) => {
                 if (error) {
                     console.error('Virhe käyttäjän sähköpostiosoitteen haussa: ' + error.stack);
                     return res.status(500).json({ error: 'Sähköpostiosoitteen haku epäonnistui' });
                 } else if (emailResults.length > 0) {
                     const userEmail = emailResults[0].email;
-                    
+
                     const emailHtml = `
                         <h1>Olet peruuttanut varauksesi</h1>
                         <p>Olet peruuttanut varauksesi meidän ravintolassamme. Jos tämä oli virhe, voit tehdä uuden varauksen verkkosivuillamme.</p>
@@ -239,10 +239,10 @@ app.post('/reset-password', async (req, res) => {
             return res.status(404).json({ message: 'Sähköpostiosoitetta ei löydy' });
         }
         const user = results[0];
-        
+
         // Luo resetointi-token ja sen vanhentumisaika
         const resetToken = jwt.sign({ userId: user.user_id }, JWT_SECRET, { expiresIn: '1h' });
-        
+
         // Lähetä sähköposti käyttäjälle
         const resetLink = `http://localhost:3000/new-password-page.html?token=${resetToken}`;
         await sendEmail(
@@ -467,7 +467,7 @@ app.put('/muokkaa-varausta/:poytaID', (req, res) => {
             res.status(500).json({ error: 'Varauksen muokkaaminen epäonnistui' });
             return;
         }
-        
+
         connection.query('SELECT email FROM poytavaraus.users WHERE user_id = (SELECT user_id FROM poytavaraus.varaus WHERE varaus_id = ?)', [varausID], (error, emailResults) => {
             if (error) {
                 console.error('Virhe käyttäjän sähköpostiosoitteen haussa: ' + error.stack);
@@ -476,7 +476,7 @@ app.put('/muokkaa-varausta/:poytaID', (req, res) => {
                 const userEmail = emailResults[0].email;
                 const formattedDate = new Date(päivämäärä).toISOString().split('T')[0].split('-').reverse().join('.'); // muuttaa päivämäärän muotoon pp.kk.vvvv
                 const formattedTime = aika.slice(0, 5); // poistaa sekunnit kellonajasta
-                
+
                 const emailHtml = `
                     <h1>Olet muokannut varaustasi</h1>
                     <p>Alla päivitetyt varauksen tiedot:</p>
@@ -506,16 +506,55 @@ app.put('/muokkaa-varausta/:poytaID', (req, res) => {
 });
 
 // Luodaan reitti varauksen peruuttamiselle
-app.post('/peruuta-varaus/:poytaID', (req, res) => {
-    const poytaID = req.params.poytaID;
-    // Poistetaan ensin varaukset, jotka liittyvät tähän pöytään
-    connection.query('DELETE FROM poytavaraus.varaus WHERE varaus_id = ?', [poytaID], (error, results) => {
-        if (error) {
-            console.error('Virhe varauksen peruuttamisessa: ' + error.stack);
-            res.status(500).json({ error: 'Varauksen peruuttaminen epäonnistui' });
-            return;
+app.post('/peruuta-varaus/:varausID', (req, res) => {
+    const varausID = req.params.varausID;
+
+    // Ensin haetaan varauksen tiedot käyttäjän sähköpostiosoitteen hankkimiseksi
+    connection.query('SELECT * FROM varaus JOIN users ON varaus.user_id = users.user_id WHERE varaus_id = ?', [varausID], (selectError, varausResults) => {
+        if (selectError) {
+            console.error('Virhe varauksen haussa: ' + selectError.stack);
+            return res.status(500).json({ error: 'Varauksen haku epäonnistui' });
         }
-        res.json({ message: 'Varaus on peruutettu' });
+        if (varausResults.length === 0) {
+            return res.status(404).json({ message: 'Varausta ei löytynyt' });
+        }
+
+        // Oletetaan, että sähköposti on haettu käyttäjän ja varauksen yhdistävistä tiedoista
+        const userEmail = varausResults[0].email;
+        if (!userEmail) {
+            return res.status(404).json({ message: 'Varaukseen liittyvän käyttäjän sähköpostiosoitetta ei löytynyt' });
+        }
+
+        // Tämän jälkeen poistetaan varaus tietokannasta
+        connection.query('DELETE FROM varaus WHERE varaus_id = ?', [varausID], (deleteError, deleteResults) => {
+            if (deleteError) {
+                console.error('Virhe varauksen peruuttamisessa: ' + deleteError.stack);
+                return res.status(500).json({ error: 'Varauksen peruuttaminen epäonnistui' });
+            }
+            if (deleteResults.affectedRows === 0) {
+                return res.status(404).json({ message: 'Varausta ei löytynyt' });
+            }
+
+            // Lähetetään sähköposti käyttäjälle varauksen peruutuksesta
+            const emailHtml = `
+                <h1>Henkilökuntamme on peruuttanut varauksesi</h1>
+                <p>Pahoittelemme, mutta olemme joutuneet peruuttamaan varauksesi meidän ravintolassamme. Jos tarvitset lisätietoja tai haluat tehdä uuden varauksen, olethan yhteydessä henkilökuntaamme.</p>
+                <p>Voit ottaa meihin yhteyttä sähköpostitse tai puhelimitse. Kaikki yhteystietomme löydät verkkosivuiltamme.</p>
+            `;
+
+
+            sendEmail(
+                userEmail,
+                'Varauksesi on peruutettu',
+                'Olet peruuttanut varauksesi meidän ravintolassamme.',
+                emailHtml
+            ).then(() => {
+                res.json({ message: 'Varaus peruutettu ja sähköposti lähetetty.' });
+            }).catch(emailError => {
+                console.error('Sähköpostin lähetys epäonnistui: ' + emailError);
+                res.status(500).json({ error: 'Sähköpostin lähetys epäonnistui' });
+            });
+        });
     });
 });
 
@@ -609,32 +648,32 @@ app.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'Käyttäjänimi tai sähköpostiosoite on jo käytössä' });
         }
 
-    const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
-    /*
-    if (!passwordRegex.test(password)) {
-        return res.status(400).json({ message: 'Salasanan on sisällettävä vähintään yksi numero, yksi erityismerkki, yksi iso kirjain, yksi pieni kirjain ja oltava vähintään 8 merkkiä pitkä.' });
-    }
-    */
+        const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+        /*
+        if (!passwordRegex.test(password)) {
+            return res.status(400).json({ message: 'Salasanan on sisällettävä vähintään yksi numero, yksi erityismerkki, yksi iso kirjain, yksi pieni kirjain ja oltava vähintään 8 merkkiä pitkä.' });
+        }
+        */
 
-    try {
-        // Hasheetaan salasana bcryptillä
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        try {
+            // Hasheetaan salasana bcryptillä
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        // Suoritetaan kysely ja tallennetaan hasheerattu salasana tietokantaan
-        const query = `INSERT INTO Users (etunimi, sukunimi, email, username, password) VALUES (?, ?, ?, ?, ?)`;
-        connection.query(query, [etunimi, sukunimi, email, username, hashedPassword], (error, results) => {
-            if (error) {
-                console.error(error);
-                res.status(500).json({ message: 'Virhe rekisteröinnissä' });
-            } else {
-                res.json({ message: 'Rekisteröinti onnistui!' });
-            }
-        });
-    } catch (error) {
-        console.error('Salasanan hashauksessa tapahtui virhe:', error);
-        res.status(500).json({ message: 'Virhe käyttäjän rekisteröinnissä' });
-    }
-});
+            // Suoritetaan kysely ja tallennetaan hasheerattu salasana tietokantaan
+            const query = `INSERT INTO Users (etunimi, sukunimi, email, username, password) VALUES (?, ?, ?, ?, ?)`;
+            connection.query(query, [etunimi, sukunimi, email, username, hashedPassword], (error, results) => {
+                if (error) {
+                    console.error(error);
+                    res.status(500).json({ message: 'Virhe rekisteröinnissä' });
+                } else {
+                    res.json({ message: 'Rekisteröinti onnistui!' });
+                }
+            });
+        } catch (error) {
+            console.error('Salasanan hashauksessa tapahtui virhe:', error);
+            res.status(500).json({ message: 'Virhe käyttäjän rekisteröinnissä' });
+        }
+    });
 });
 
 // Kirjautumisreitti
