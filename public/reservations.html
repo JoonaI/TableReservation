@@ -80,23 +80,32 @@
     <script>
         //Asetetaan nykyinen päivämäärä input-kentän min-attribuutiksi, jotta käyttäjä ei voi valita menneitä päivämääriä
         document.getElementById('pvm').min = new Date().toISOString().split('T')[0];
+
+        // Kuunnellaan muutoksia päivämäärä-kentässä
         document.getElementById('pvm').addEventListener('change', function () {
             var now = new Date();
             var selectedDate = new Date(this.value);
-            // Tarkista, onko valittu päivämäärä sama kuin nykyinen päivämäärä
-            if (selectedDate.setHours(0, 0, 0, 0) === now.setHours(0, 0, 0, 0)) {
-                // Jos on, aseta aika-kentän minimiarvoksi nykyinen kellonaika +1 tunti
-                const now = new Date();
-                const selectedPvm = document.getElementById('pvm').value;
-                const hours = (now.getHours() + 1);
-                const minutes = now.getMinutes().toString().padStart(2, '0');
-                document.getElementById('aika').min = `${hours}:${minutes}`;
-            } else {
-                // Jos ei, salli minkä tahansa kellonajan valinta
-                document.getElementById('aika').min = '';
-            }
-        });
 
+            // Hae aukioloajat palvelimelta
+            fetch('/api/aukioloajat')
+                .then(response => response.json())
+                .then(aukioloajat => {
+                    var hours = now.getHours() + 1;
+                    var minutes = now.getMinutes().toString().padStart(2, '0');
+
+                    // Tarkista, onko valittu päivämäärä sama kuin nykyinen päivämäärä
+                    if (selectedDate.setHours(0, 0, 0, 0) === now.setHours(0, 0, 0, 0)) {
+                        // Jos on, aseta aika-kentän minimiarvoksi nykyinen kellonaika +1 tunti
+                        document.getElementById('aika').min = `${hours}:${minutes}`;
+                        document.getElementById('aika').max = aukioloajat.sulkuaika;
+                    } else {
+                        // Jos ei, salli minkä tahansa kellonajan valinta aukioloaikojen sisällä
+                        document.getElementById('aika').min = aukioloajat.avausaika;
+                        document.getElementById('aika').max = aukioloajat.sulkuaika;
+                    }
+                })
+                .catch(error => console.error('Virhe:', error));
+        });
 
 
         // Estetään lomakkeen oletustoiminto ja lähetetään tiedot AJAX-pyynnöllä

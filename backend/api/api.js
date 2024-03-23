@@ -305,6 +305,44 @@ app.get('/hallintapaneeli', (req, res) => {
     res.sendFile(path.join(__dirname, '/..//../public/hallintapaneeli.html'));
 });
 
+// Luodaan reitti aukioloaikojen hakemiselle
+app.get('/api/aukioloajat', (req, res) => {
+    console.log('Saapui /api/aukioloajat-reitille.');
+
+    haeAukioloajat((error, results) => {
+        if (error) {
+            console.error('Virhe aukioloaikoja haettaessa: ' + error.stack);
+            res.status(500).json({ error: 'Virhe aukioloaikoja haettaessa' });
+            return;
+        }
+        console.log('Haetut aukioloajat:', results); // Lisätään lokituloste
+        res.json(results); // Palautetaan aukioloajat JSON-muodossa
+    });
+});
+
+function haeAukioloajat(callback) {
+    console.log("Haetaan aukioloaikoja.");
+
+    const sql = `
+    SELECT avausaika, sulkuaika
+        FROM aukiolo
+        LIMIT 1
+    `;
+
+    // Suoritetaan kysely
+    connection.query(sql, (error, results) => {
+        if (error) {
+            console.error('Virhe tietokantakyselyssä: ' + error.stack);
+            callback(error, null);
+            return;
+        }
+        // Palautetaan kyselyn tulokset
+        console.log('palvelin results: ', results);
+        callback(null, results[0]);
+    });
+}
+
+
 // Luodaan reitti pöytävarausten tarkistamiselle
 app.post('/tarkista-saatavuus', upload.array(), (req, res) => {
     console.log("BOODI", req.body)
