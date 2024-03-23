@@ -92,8 +92,7 @@
     </div>
 
     <script>
-        // Näytä varaukset automaattisesti sivun latautuessa
-document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () {
     //haetaan varatut pöydät palvelimelta
     fetch('/varatut-poydat')
         .then(response => response.json())
@@ -102,10 +101,23 @@ document.addEventListener("DOMContentLoaded", function () {
             data.sort((a, b) => new Date(a.päivämäärä) - new Date(b.päivämäärä));
             // Tulosta varatut pöydät päivämäärän mukaan
             tulostaPoydat(data);
+
+            // Tarkista tallennustilasta, onko varauksia vahvistettu ja piilota "Vahvista varaus" -napit tarvittaessa
+            data.forEach(poyta => {
+                const varausID = poyta.varaus_id;
+                const isVahvistettu = localStorage.getItem(`varaus-${varausID}-vahvistettu`);
+                if (isVahvistettu === 'true') {
+                    const button = document.querySelector(`button[data-id="${varausID}"]`);
+                    if (button) {
+                        button.parentNode.removeChild(button);
+                    }
+                }
+            });
         })
         .catch(error => {
             console.error('Virhe pöytien hakemisessa: ', error);
         });
+});
 
         document.addEventListener("DOMContentLoaded", function () {
     // Lataa aukioloajat tietokannasta sivun latauksen yhteydessä
@@ -131,7 +143,6 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('aukioloajat-container').innerHTML = "<h2>Aukioloajat:</h2><p>" + savedOpeningHours + "</p>";
     }
 });
-});
 
         function tulostaPoydat(poydat) {
             console.log(poydat);
@@ -155,7 +166,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         Erikoispyynnöt: ${poyta.erikoispyynnöt},
                         Lisätiedot: ${poyta.lisätiedot},
                         Tilaisuus: ${poyta.tilaisuus},
-                        <button onclick='vahvistaVaraus(${poyta.varaus_id})'>Vahvista varaus </button> 
+                        <button data-id="${poyta.varaus_id}" onclick='vahvistaVaraus(${poyta.varaus_id})'>Vahvista varaus </button>
                         <button onclick='muokkaaVarausta(${poyta.pöytä_id})'>Muokkaa varausta </button>
                         <button onclick='peruVaraus(${poyta.varaus_id})'>Peru varaus </button>
                         </li>`;
@@ -182,6 +193,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const button = document.querySelector(`button[data-id="${varausID}"]`);
         if (button) {
             button.parentNode.removeChild(button);
+            // Tallenna tieto vahvistetusta varauksesta paikalliseen tallennustilaan
+            localStorage.setItem(`varaus-${varausID}-vahvistettu`, 'true');
         }
     })
     .catch(error => {
