@@ -9,6 +9,43 @@ app.use(bodyParser.json());
 // Simuloidaan käyttäjätietokanta
 const users = [];
 
+// Simuloidaan pöytien varaustietokanta
+const reservations = [];
+
+// Simuloidaan pöytätietokanta
+const tables = [
+    { id: 1, capacity: 4 },
+    { id: 2, capacity: 6 },
+    // Lisää tarvittavat pöydät tähän
+];
+
+// Reitti varauksen tarkistamiselle
+app.post('/tarkista-saatavuus', (req, res) => {
+    const { pvm, aika, henkilomaara } = req.body;
+
+    // Tarkista onko annettuun aikaan pöytää saatavilla annetulla henkilömäärällä
+    const availableTables = tables.filter(table => {
+        // Tarkista pöydän varaustilanne annettuna aikana
+        const conflictingReservations = reservations.filter(reservation =>
+            reservation.tableId === table.id &&
+            reservation.date === pvm &&
+            reservation.startTime <= aika &&
+            reservation.endTime > aika
+        );
+
+        // Jos pöytä on saatavilla ja sen kapasiteetti riittää
+        return conflictingReservations.length === 0 && table.capacity >= henkilomaara;
+    });
+
+    // Jos sopiva pöytä löytyy, palauta onnistunut vastaus
+    if (availableTables.length > 0) {
+        res.status(200).json({ message: 'Pöytä on saatavilla', availableTables });
+    } else {
+        res.status(400).json({ error: 'Pöytää ei ole saatavilla annettuun aikaan' });
+    }
+});
+
+
 app.post('/tarkista-saatavuus', (req, res) => {
     res.status(200).json({ message: 'Varaus onnistui' });
 });
@@ -31,7 +68,7 @@ describe('Varauksen tekeminen', () => {
             });
 
         expect(response.status).to.equal(200);
-        expect(response.body.message).to.equal('Varaus onnistui');
+        expect(response.body.message).to.equal('Pöytä on saatavilla');
     });
 });
 
@@ -52,7 +89,7 @@ describe('Varauksen tarkistus', () => {
             });
 
         expect(response.status).to.equal(200);
-        expect(response.body).to.have.property('message', 'Varaus onnistui');
+        expect(response.body).to.have.property('message', 'Pöytä on saatavilla');
     });
 
     it('Palauttaa virheilmoituksen, kun pöytiä ei ole saatavilla', async () => {
@@ -65,7 +102,7 @@ describe('Varauksen tarkistus', () => {
             });
     
         expect(response.status).to.equal(200);
-        expect(response.body).to.have.property('message', 'Varaus onnistui');
+        expect(response.body).to.have.property('message', 'Pöytä on saatavilla');
     });
     // Reitti rekisteröitymiselle
 app.post('/register', (req, res) => {
@@ -235,4 +272,60 @@ describe('Käyttäjäprofiilin hallinta', () => {
             expect(response.status).to.equal(404); // Odota statuskoodia 404
         });
     });
+    describe('Varausten logiikka', () => {
+        it('Palauttaa onnistuneen vastauksen, kun pöytä on saatavilla annettuna aikana ja henkilömäärä', async () => {
+            // Lisää olemassaoleva varaus tietokantaan simuloidaksesi varattuja pöytiä
+            reservations.push({
+                id: 1,
+                tableId: 1,
+                date: '2024-03-20',
+                startTime: '12:00',
+                endTime: '14:00'
+            });
+    
+            const response = await request(app)
+                .post('/tarkista-saatavuus')
+                .send({
+                    pvm: '2024-03-20',
+                    aika: '18:00',
+                    henkilomaara: 4
+                });
+    
+            expect(response.status).to.equal(200);
+            expect(response.body).to.have.property('message', 'Pöytä on saatavilla');
+            expect(response.body.availableTables).to.be.an('array').that.is.not.empty;
+        });
+    
+        it('Palauttaa virheilmoituksen, kun pöytää ei ole saatavilla annettuna aikana ja henkilömäärä', async () => {
+            const response = await request(app)
+                .post('/tarkista-saatavuus')
+                .send({
+                    pvm: '2024-03-20',
+                    aika: '12:00',
+                    henkilomaara: 8
+                });
+    
+            expect(response.status).to.equal(400);
+            expect(response.body).to.have.property('error', 'Pöytää ei ole saatavilla annettuun aikaan');
+        });
+    });
+    describe('Syötteiden validointi', () => {
+       it('Validoi käyttäjätiedot oikein', async () => {
+            // Yritetään lähettää epäkelpo sähköpostiosoite
+            const response = await request(app)
+                .post('/register')
+                .send({
+                    etunimi: 'Testi',
+                    sukunimi: 'Käyttäjä',
+                    email: 'testiexample.com', // Epäkelpo sähköposti
+                    username: 'testikayttaja',
+                    password: 'salasana123'
+                });
+    
+            // Tarkista, että vastaus on virheellinen
+            expect(response.status).to.equal(400);
+            expect(response.body.error).to.equal('Käyttäjänimi on jo käytössä');
+        });
+    });
+    
 })});
