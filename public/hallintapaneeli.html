@@ -7,41 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ravintolan hallintapaneeli</title>
     <script src="common.js" defer></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-
-        h1 {
-            margin-top: 20px;
-        }
-
-        button {
-            margin: 10px;
-            padding: 5px 10px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        #varaukset,
-        #aukioloajat {
-            margin: 20px auto;
-            width: 80%;
-            text-align: left;
-        }
-
-        #aukioloajat-container {
-            text-align: right;
-            margin-bottom: 20px;
-        }
-
-        #muokkaa-aukioloaikoja-button {
-            margin-bottom: 10px;
-        }
-    </style>
 </head>
 
 <body>
@@ -69,19 +34,20 @@
 
         
     </script>
+    <main id="main-content">
+        <h2>Ravintolan hallintapaneeli</h1>
 
-    <h1>Ravintolan hallintapaneeli</h1>
-
-    <div id="aukioloajat-container">
-        <button id="muokkaa-aukioloaikoja-button" onclick="muokkaaAukioloaikoja()">Muokkaa aukioloaikoja</button>
-        <div id="aukioloajat">
-            <!-- Tähän tulostetaan aukioloajat -->
+        <div id="aukioloajat-container">
+            <div id="aukioloajat">
+                <!-- Tähän tulostetaan aukioloajat -->
+            </div>
+            <button id="muokkaa-aukioloaikoja-button" onclick="muokkaaAukioloaikoja()">Muokkaa aukioloaikoja</button>
         </div>
-    </div>
 
-    <div id="poydat">
-        <!-- Tähän tulostetaan varaukset  -->
-    </div>
+        <div id="poydat">
+            <!-- Tähän tulostetaan varaukset  -->
+        </div>
+    </main>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -154,9 +120,9 @@
                         Erikoispyynnöt: ${poyta.erikoispyynnöt},
                         Lisätiedot: ${poyta.lisätiedot},
                         Tilaisuus: ${poyta.tilaisuus},
-                        <button data-id="${poyta.varaus_id}" onclick='vahvistaVaraus(${poyta.varaus_id})'>Vahvista varaus </button>
+                        <button class="hallinta-button-vahvista" data-id="${poyta.varaus_id}" onclick='vahvistaVaraus(${poyta.varaus_id})'>Vahvista varaus </button>
                         <button onclick='muokkaaVarausta(${poyta.pöytä_id})'>Muokkaa varausta </button>
-                        <button onclick='peruVaraus(${poyta.varaus_id})'>Peru varaus </button>
+                        <button class="hallinta-button-peru" onclick='peruVaraus(${poyta.varaus_id})'>Peru varaus </button>
                         </li>`;
                 });
             } else {
