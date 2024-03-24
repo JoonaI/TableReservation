@@ -228,6 +228,42 @@ app.delete('/peruuta-varaus/:varausID', (req, res) => {
     }
 });
 
+// Luodaan reitti uuden salasanan asettamiseksi käyttäjän profiilissa tehtynä
+app.post('/update-password', async (req, res) => {
+    // Otetaan token Authorization-headerista
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ message: 'Token puuttuu' });
+    }
+
+    try {
+        // Puretaan token ja haetaan siitä userId
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+
+        const { newPassword } = req.body;
+        if (!newPassword) {
+            return res.status(400).json({ message: 'Uusi salasana on pakollinen' });
+        }
+
+        // Salataan uusi salasana bcryptillä
+        const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+        // Päivitetään uusi salasana tietokantaan käyttäjän id:llä
+        connection.query('UPDATE Users SET password = ? WHERE user_id = ?', [hashedPassword, userId], (error, results) => {
+            if (error) {
+                console.error('Virhe salasanan päivittämisessä:', error);
+                return res.status(500).json({ message: 'Virhe salasanan päivittämisessä' });
+            }
+            // Onnistuneen päivityksen käsittely
+            res.json({ message: 'Salasana päivitetty onnistuneesti' });
+        });
+    } catch (error) {
+        console.error('Virhe tokenin käsittelyssä:', error);
+        res.status(401).json({ message: 'Virheellinen tai vanhentunut token' });
+    }
+});
+
 // Luodaan reitti salasanan resetointi-tokenin luomiseksi ja lähettämiseksi
 app.post('/reset-password', async (req, res) => {
     const { email } = req.body;

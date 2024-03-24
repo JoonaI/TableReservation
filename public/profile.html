@@ -58,13 +58,8 @@
                     <input type="text" id="username" name="username" value="NykyinenKäyttäjänimi" required>
                 </div>
 
-                <!-- Salasanan muokkaus voi vaatia erillisen prosessin, joten se voidaan jättää pois tästä näkymästä -->
-                <!-- <div class="form-group">
-                    <label for="password">Salasana:</label>
-                    <input type="password" id="password" name="password" required>
-                </div> -->
-
                 <button type="submit">Tallenna tiedot</button>
+                <button type="button" id="change-password-button">Vaihda salasana</button>
             </form>
             <h2>Omat varaukset</h2>
             <ul id="varaukset-lista">
@@ -124,11 +119,12 @@
                             Henkilömäärä: ${varaus.henkilömäärä}, Erikoispyynnöt: ${varaus.erikoispyynnöt || ''},
                             Lisätiedot: ${varaus.lisätiedot || ''}, Tilaisuus: ${varaus.tilaisuus || ''}
                             <button onclick="muokkaaVarausta(${varaus.varaus_id})">Muokkaa</button>
-                            <button onclick="peruVaraus(${varaus.varaus_id})">Peru varaus</button>
+                            <button class="button-peru" onclick="peruVaraus(${varaus.varaus_id})">Peru varaus</button>
                         </li>`;
                 });
             })
             .catch(error => console.error('Virhe haettaessa varauksia:', error));
+
 
             window.muokkaaVarausta = function(varaus_id) {
                 const uusiPäivämäärä = prompt("Anna uusi päivämäärä (muodossa VVVV-KK-PP):");
@@ -236,6 +232,52 @@
             alert('Profiilin päivitys epäonnistui: ' + error.message);
         });
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+            // Modaalin toimintalogiikka
+            var modal = document.getElementById("passwordChangeModal");
+            var btn = document.getElementById("change-password-button");
+            var span = document.getElementsByClassName("close-button")[0];
+
+            btn.onclick = function() {
+                modal.style.display = "block";
+            }
+
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            // Salasanan päivitys
+            document.getElementById('passwordChangeForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                var newPassword = document.getElementById('newPassword').value;
+
+                // Lähetä uusi salasana palvelimelle
+                fetch('/update-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ newPassword: newPassword })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    modal.style.display = "none";
+                })
+                .catch(error => {
+                    console.error('Virhe:', error);
+                    alert('Salasanan päivitys epäonnistui.');
+                });
+            });
+        });
  
     </script>
     
@@ -245,6 +287,22 @@
         <p>&copy; 2024 Ravintola Ryhmä C</p>
     </footer>
 
+
+    <!-- Modaali Salasanan Vaihtoa Varten -->
+    <div id="passwordChangeModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Vaihda Salasana</h2>
+            <form id="passwordChangeForm">
+                <div class="form-group">
+                    <label for="newPassword">Uusi Salasana:</label>
+                    <input type="password" id="newPassword" name="newPassword" required>
+                </div>
+                <button type="submit">Tallenna</button>
+            </form>
+        </div>
+    </div>
+    
 </body>
 
 </html>
