@@ -101,26 +101,6 @@ button {
     text-align: center;
 }
 
-/* Tarkista pöytien saatavuus painikkeen tyylittely 
-#tarkista-saatavuus {
-    background-color: #f6bd60;
-    color: #000000;
-    padding: 8px 10px;
-    margin: 8px 0;
-    border-radius: 30px;
-    border-color: #f6bd60;
-    cursor: pointer;
-}
-
-#vapaat-poydat {
-    padding: 20px;
-    text-align: center;
-}
-
-#varaa-nappi {
-    display: block;
-    margin: 0 auto;
-} */
 
 /* Otsikon keskitys */
 #varaus-otsikko {
@@ -324,6 +304,26 @@ form#profile-form button[type="button"]:hover {
     cursor: pointer;
 }
 /* Tähän loppuu profiilisivun muotoilut */
+
+.hallinta-button-peru {
+    background-color: #F28482;
+    border-color: #F28482;
+    color: #000000;
+    padding: 8px 10px;
+    margin: 8px 0;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+.hallinta-button-vahvista {
+    background-color: #84A59D;
+    border-color: #84A59D;
+    color: #000000;
+    padding: 8px 10px;
+    margin: 8px 0;
+    border-radius: 30px;
+    cursor: pointer;
+}
 
 /* Tästä alkaa yhteystietosivun muotoilut */
 #Yhteystiedot-section {
