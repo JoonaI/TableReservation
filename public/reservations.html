@@ -222,6 +222,7 @@
                                     if (response.ok) {
                                         alert('Pöytä varattu onnistuneesti!');
                                         // Tässä voit päivittää sivun näkymää tarvittaessa
+                                        location.reload();
                                     } else {
                                         throw new Error('Pöydän varaaminen epäonnistui.');
                                     }
