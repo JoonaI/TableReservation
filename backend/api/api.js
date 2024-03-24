@@ -106,11 +106,42 @@ app.put('/profile', (req, res) => {
         const userId = decoded.userId;
         const { etunimi, sukunimi, email, username } = req.body;
 
-        connection.query('UPDATE users SET etunimi = ?, sukunimi = ?, email = ?, username = ? WHERE user_id = ?', [etunimi, sukunimi, email, username, userId], (error, results) => {
-            if (error) {
-                return res.status(500).json({ message: 'Käyttäjän tietojen päivitys epäonnistui' });
+
+        // Tarkistetaan, etteivät etunimi tai sukunimi sisällä numeroita ja ovat vähintään kaksi merkkiä pitkiä
+        if (/\d/.test(etunimi) || etunimi.length < 2) {
+            return res.status(400).json({ message: 'Etunimen on oltava vähintään kaksi merkkiä pitkä ja se ei saa sisältää numeroita' });
+        }
+
+        if (/\d/.test(sukunimi) || sukunimi.length < 2) {
+            return res.status(400).json({ message: 'Sukunimen on oltava vähintään kaksi merkkiä pitkä ja se ei saa sisältää numeroita' });
+        }
+
+        // Tarkistetaan, että käyttäjänimen on oltava vähintään kaksi kirjainta eikä se saa koostua pelkästään numeroista
+        if (!/^[A-Za-z].*[A-Za-z]+$/.test(username) || /^\d+$/.test(username)) {
+            return res.status(400).json({ message: 'Käyttäjänimen tulee sisältää vähintään kaksi kirjainta eikä se voi olla numero' });
+        }
+
+        // Tarkista, että käyttäjänimi tai sähköpostiosoite ei ole jo käytössä
+        connection.query('SELECT * FROM users WHERE (username = ? OR email = ?) AND user_id != ?', [username, email, userId], (error, results) => {
+            if (error) throw error;
+        
+            let errors = [];
+            if (results.some(user => user.email === email)) {
+                errors.push('Sähköpostiosoite on jo käytössä.');
             }
-            res.json({ message: 'Käyttäjätiedot päivitetty onnistuneesti' });
+            if (results.some(user => user.username === username)) {
+                errors.push('Käyttäjänimi on jo käytössä');
+            }
+        
+            if (errors.length > 0) {
+                return res.status(400).json({ message: errors.join(' ja ') });
+            } else {
+                // Kaikki tarkistukset menivät läpi, päivitä käyttäjän tiedot
+                connection.query('UPDATE users SET etunimi = ?, sukunimi = ?, email = ?, username = ? WHERE user_id = ?', [etunimi, sukunimi, email, username, userId], (updateError, updateResults) => {
+                    if (updateError) throw updateError;
+                    res.json({ message: 'Käyttäjätiedot päivitetty onnistuneesti' });
+                });
+            }
         });
     } catch (error) {
         res.status(401).json({ message: 'Virheellinen token' });

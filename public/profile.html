@@ -212,24 +212,20 @@
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
             body: JSON.stringify({ etunimi, sukunimi, email, username }),
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Profiilin päivitys epäonnistui');
+        .then(response => response.json().then(data => ({ ok: response.ok, body: data })))
+        .then(result => {
+            if (!result.ok) {
+                throw new Error(result.body.message); // Heittää virheen, jos vastaus ei ole ok
             }
-            return response.json();
-        })
-        .then(data => {
-            alert(data.message);
-            // Päivitä sivu näyttämään päivitetyt tiedot
+            alert(result.body.message); // Näyttää onnistumisviestin
             window.location.reload();
         })
         .catch(error => {
-            console.error('Virhe:', error);
-            alert('Profiilin päivitys epäonnistui: ' + error.message);
+            alert(error.message); // Näyttää yhdistetyn virheviestin
         });
     });
 

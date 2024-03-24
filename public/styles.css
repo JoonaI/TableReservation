@@ -109,19 +109,19 @@ button {
 
 /* Varaussivun yleiset muotoilut */
 #varaukset-section, #vapaat-poydat {
-    background-color: #faf0ee; /* Taustaväri */
-    border-radius: 10px; /* Pyöristetyt kulmat */
-    margin: 20px auto; /* Keskitys ja ulkoinen tila */
-    padding: 20px; /* Sisäinen tila */
-    max-width: 400px; /* Maksimileveys */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Varjostus */
+    background-color: #faf0ee;
+    border-radius: 10px;
+    margin: 20px auto;
+    padding: 20px;
+    max-width: 400px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Muotoilut lomakkeelle ja sen sisältämille elementeille */
 #varaukset-section form, #vapaat-poydat form {
-    max-width: 400px; /* Maksimileveys */
-    margin: 0 auto; /* Keskitys */
-    padding: 20px; /* Sisäinen tila */
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
 #varaukset-section label, #vapaat-poydat label {
@@ -135,26 +135,26 @@ button {
 #varaukset-section textarea,
 #varaukset-section select,
 #vapaat-poydat select {
-    width: 100%; /* Koko leveys */
-    padding: 10px; /* Sisäinen tila */
-    margin: 5px 0 15px 0; /* Ulkoinen tila */
-    border: 1px solid #ddd; /* Reunaviiva */
-    border-radius: 30px; /* Pyöristetyt kulmat */
-    box-sizing: border-box; /* Border ja padding sisältyvät leveyteen */
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0 15px 0;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    box-sizing: border-box;
 }
 
 /* Nappien muotoilut */
 #varaukset-section input[type="submit"],
 #vapaat-poydat button {
-    width: 100%; /* Koko leveys */
-    padding: 10px; /* Sisäinen tila */
-    background-color: #f6bd60; /* Taustaväri */
-    border: none; /* Ei reunaviivaa */
-    border-radius: 30px; /* Pyöristetyt kulmat */
-    color: #000000; /* Tekstin väri */
-    font-weight: bold; /* Lihavoitu teksti */
-    cursor: pointer; /* Kursori muuttuu klikattavaksi */
-    margin-top: 10px; /* Tilaa yläpuolelle */
+    width: 100%;
+    padding: 10px;
+    background-color: #f6bd60;
+    border: none;
+    border-radius: 30px;
+    color: #000000; 
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
 }
 
 #varaukset-section input[type="submit"]:hover,
@@ -340,12 +340,12 @@ form#profile-form button[type="button"]:hover {
 }
 
 .contact-card {
-    background-color: #faf0ee; /* Taustaväri */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Varjostus */
-    border-radius: 30px; /* Pyöristetyt kulmat */
-    width: 300px; /* Kortin leveys */
-    padding: 20px; /* Sisäinen tila */
-    text-align: left; /* Tekstin tasaus */
+    background-color: #faf0ee;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 30px;
+    width: 300px;
+    padding: 20px;
+    text-align: left;
     transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animaatioefektit */
 }
 
@@ -355,12 +355,12 @@ form#profile-form button[type="button"]:hover {
 }
 
 .contact-card h3 {
-    color: #000000; /* Otsikon tekstiväri */
+    color: #000000;
     margin-top: 0;
 }
 
 .contact-card p {
-    color: #666; /* Paragrafin tekstiväri */
+    color: #666;
     margin-bottom: 0;
 }
 /* Tähän loppuu yhteystietosivun muotoilut */
