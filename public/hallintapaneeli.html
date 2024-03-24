@@ -57,15 +57,7 @@
                     updateHeaderAfterLogin();
                 });
 
-                // Lataa tallennetut aukioloajat sivun latautuessa
-    const savedOpeningHours = localStorage.getItem('openingHours');
-    if (savedOpeningHours) {
-        document.getElementById('aukioloajat').innerHTML = "<h2>Aukioloajat:</h2><p>" + savedOpeningHours + "</p>";
-    } else {
-                // Aseta oletusarvoinen aukioloaika, jos tallennettua aukioloaikaa ei ole
-                const defaultOpeningHours = "Maanantai-perjantai: 9:00 - 21:00<br>Lauantai-sunnuntai: 10:00 - 20:00";
-                document.getElementById('aukioloajat').innerHTML = "<h2>Aukioloajat:</h2><p>" + defaultOpeningHours + "</p>";
-            }
+                
 
              // Delegoi kuuntelija document-tasolle ja tarkista, onko klikattu elementti reset-password-button
              document.addEventListener('click', function(event) {
@@ -120,20 +112,16 @@
 });
 
         document.addEventListener("DOMContentLoaded", function () {
-    // Lataa aukioloajat tietokannasta sivun latauksen yhteydessä
-    fetch('/hae-aukioloajat')
+    // Hae aukioloajat palvelimelta sivun latautuessa
+    fetch('/api/aukioloajat') // Muutettu '/aukioloajat' -> '/api/aukioloajat'
         .then(response => response.json())
         .then(data => {
-            // Tulosta aukioloajat
-            const aukioloajatContainer = document.getElementById('aukioloajat-container');
-            const aukioloajatHTML = "<h2>Aukioloajat:</h2><p>" + data.aukioloajat + "</p>";
-            aukioloajatContainer.innerHTML = aukioloajatHTML;
-
-            // Tallenna aukioloajat paikallisesti
-            localStorage.setItem('aukioloajat', data.aukioloajat);
+            // Muotoile aukioloajat ja päivitä ne sivulle
+            const aukioloajat = `Maanantai-Sunnuntai: ${data.avausaika} - ${data.sulkuaika}`;
+            document.getElementById('aukioloajat').innerHTML = "<h2>Aukioloajat:</h2><p>" + aukioloajat + "</p>";
         })
         .catch(error => {
-            console.error('Virhe aukioloaikojen hakemisessa: ', error);
+            console.error('Virhe aukioloaikoja haettaessa: ', error);
         });
 
     // Lataa tallennetut aukioloajat sivun latautuessa
