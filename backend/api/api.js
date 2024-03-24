@@ -124,7 +124,7 @@ app.put('/profile', (req, res) => {
         // Tarkista, että käyttäjänimi tai sähköpostiosoite ei ole jo käytössä
         connection.query('SELECT * FROM users WHERE (username = ? OR email = ?) AND user_id != ?', [username, email, userId], (error, results) => {
             if (error) throw error;
-        
+
             let errors = [];
             if (results.some(user => user.email === email)) {
                 errors.push('Sähköpostiosoite on jo käytössä.');
@@ -132,7 +132,7 @@ app.put('/profile', (req, res) => {
             if (results.some(user => user.username === username)) {
                 errors.push('Käyttäjänimi on jo käytössä');
             }
-        
+
             if (errors.length > 0) {
                 return res.status(400).json({ message: errors.join(' ja ') });
             } else {
@@ -444,14 +444,14 @@ function haeVapaatPoydat(haluttuPaivamaara, haluttuAika, henkilomaara, callback)
     console.log("halutut tiedot: ", haluttuPaivamaara, haluttuAika, henkilomaara);
 
     const sql = `
-    SELECT p.pöytä_id, p.kapasiteetti, p.lisätiedot
-        FROM pöytä p
-        WHERE p.kapasiteetti >= ? AND NOT EXISTS (
-        SELECT 1 FROM varaus v
-        WHERE p.pöytä_id = v.pöytä_id AND v.päivämäärä = ? AND 
-        (? < v.loppumisaika AND ? > v.aika)
-    )
-    `;
+SELECT p.pöytä_id, p.kapasiteetti, p.lisätiedot
+FROM pöytä p
+WHERE p.kapasiteetti >= ? AND NOT EXISTS (
+    SELECT 1 FROM varaus v
+    WHERE p.pöytä_id = v.pöytä_id AND v.päivämäärä = ? AND 
+    (? >= DATE_ADD(v.aika, INTERVAL -2 HOUR) AND ? < v.loppumisaika)
+)
+`;
 
     // Suoritetaan kysely
     connection.query(sql, [henkilomaara, haluttuPaivamaara, haluttuAika, haluttuAika], (error, results) => {
@@ -751,7 +751,7 @@ function sendReservationReminders() {
 }
 
 // Aikataulutetaan muistutusten lähetys suoritettavaksi viisi minuuttia yli jokaisen täyden tunnin
-schedule.scheduleJob('5 * * * *', function() {
+schedule.scheduleJob('5 * * * *', function () {
     console.log('Suoritetaan varausmuistutusten lähetys joka tunti viisi minuuttia yli...');
     sendReservationReminders();
 });
