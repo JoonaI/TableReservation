@@ -493,8 +493,8 @@ app.post('/varaa-poyta', (req, res) => {
 
     const pöytä_id = req.body.pöytä_id; // Haetaan varaajan valitsema pöytä ID:n perusteella
 
-
-
+    //tarkistetaan isoPoyta arvo
+    const isoPoyta = req.body.iso_poyta === 1 ? true : false;
     // Lisätään varaus tietokantaan
     const aika = req.body.aika;
     const loppumisaika = new Date(`1970-01-01T${aika}Z`); // Lisätään varauksen loppumisaika
@@ -512,7 +512,8 @@ app.post('/varaa-poyta', (req, res) => {
         pöytä_id: pöytä_id,
         erikoispyynnöt: erikoispyynnot,
         lisätiedot: lisatiedot,
-        tilaisuus: tilaisuus
+        tilaisuus: tilaisuus,
+        iso_poyta: isoPoyta
     };
     connection.query('INSERT INTO varaus SET ?', varausData, (error, results) => {
         if (error) {

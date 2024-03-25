@@ -217,6 +217,9 @@
                         if (varattavaPoytaId) {
                             // Lähetetään AJAX-pyyntö palvelimelle päivittääksemme pöydän varaustietoja
                             console.log('Lähetettävän pöydän ID:', varattavaPoytaId);
+                            //tarkistetaan onko iso_pöytä checkbox valittu
+                            
+                            const isoPoyta = document.getElementById('optioIso').checked ? 1 : 0;
                             const pvm = document.getElementById('pvm').value.split('/').reverse().join('-');
                             fetch('/varaa-poyta', {
                                 method: 'POST',
@@ -232,7 +235,8 @@
                                     henkilomaara: henkilomaara,
                                     erikoispyynnot: document.getElementById('erikoispyynnot').value,
                                     lisatiedot: document.getElementById('lisatiedot').value,
-                                    tilaisuus: document.getElementById('tilaisuus').value
+                                    tilaisuus: document.getElementById('tilaisuus').value,
+                                    iso_poyta: isoPoyta
 
                                 })
                             })
