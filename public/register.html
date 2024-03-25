@@ -67,18 +67,47 @@
 
 
     <script>
-        // kommentoitu osio pois, jotta salasanan vaatimuksia ei tarkisteta testailun aikana 
-        /*
+        // kommentoitu salasanan vaatimusosio pois, jotta salasanan vaatimuksia ei tarkisteta testailun aikana 
+        
         document.getElementById('register-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Estää lomakkeen normaalin lähetyksen
+
+            /*
             const password = document.getElementById('register-password').value;
             const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
     
             if (!passwordRegex.test(password)) {
                 alert('Salasanan on sisällettävä vähintään yksi numero, yksi erityismerkki, yksi iso kirjain, yksi pieni kirjain ja oltava vähintään 8 merkkiä pitkä.');
                 event.preventDefault(); // Estää lomakkeen lähetyksen
+            } */
+            const formData = new FormData(event.target);
+        const formProps = Object.fromEntries(formData);
+
+        // Lähetä rekisteröintitiedot palvelimelle
+        fetch('/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formProps),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.redirectUrl) {
+                // Näytä ilmoitus onnistuneesta rekisteröitymisestä
+                alert(data.message);
+                // Ohjaa käyttäjä kirjautumissivulle
+                window.location.href = data.redirectUrl;
+            } else {
+                // Näytä virheilmoitus
+                alert(data.message);
             }
+        })
+        .catch(error => {
+            console.error('Rekisteröitymisessä tapahtui virhe:', error);
         });
-        */
+        });
+        
     </script>
     
 </body>

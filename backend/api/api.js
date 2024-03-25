@@ -814,7 +814,7 @@ app.post('/register', async (req, res) => {
                     console.error(error);
                     res.status(500).json({ message: 'Virhe rekisteröinnissä' });
                 } else {
-                    res.json({ message: 'Rekisteröinti onnistui!' });
+                    res.json({ message: 'Rekisteröinti onnistui!', redirectUrl: '/login.html' });
                 }
             });
         } catch (error) {
