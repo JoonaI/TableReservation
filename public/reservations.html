@@ -44,7 +44,7 @@
                 <input type="number" id="henkilomaara" name="henkilomaara" min="1" required><br><br>
                 <label for="optioIso">Tarve suuremmalle pöydälle tai useammalle pöydälle suurille ryhmille.</label>
                 <input type="checkbox" id="optioIso" name="optioIso"><br><br>
-                
+
 
                 <label for="erikoispyynnot">Erikoispyynnöt (esim. allergiat, ruokavaliorajoitukset):</label>
                 <textarea id="erikoispyynnot" name="erikoispyynnot"></textarea><br><br>
@@ -113,7 +113,7 @@
         // Estetään lomakkeen oletustoiminto ja lähetetään tiedot AJAX-pyynnöllä
         document.getElementById('varaus-form').addEventListener('submit', function (event) {
             event.preventDefault(); // Estetään lomakkeen oletustoiminto
-
+            document.getElementById('tarkista-saatavuus').disabled = true; // Estetään lomakkeen lähettäminen uudelleen
             const selectedDate = document.getElementById('pvm').value;
             // Muodostetaan päivämäärä Date-objektiksi
             const dateObject = new Date(selectedDate);
@@ -146,12 +146,20 @@
                     pvm: formattedDate,
                     aika: document.getElementById('aika').value,
                     henkilomaara: henkilomaara,
-                    
+
                 })
 
 
             })
-                .then(response => response.json())
+
+                .then(response => {
+                    // Nollaa valittu pöytä ja poista pöydän ID varausnapin datasetistä
+                    document.getElementById('vapaat-poydat-lista').value = '';
+                    delete document.getElementById('varaa-nappi').dataset.pöytä_id;
+
+
+                    return response.json();
+                })
                 .then(data => {
                     // Tässä voit käsitellä palautetut tiedot ja päivittää sivun näkymää tarvittaessa
                     console.log(data); // Tulostetaan palautetut tiedot konsoliin
@@ -184,6 +192,15 @@
                             document.getElementById('varaa-nappi').style.display = 'none';
                         }
                     });
+
+                    // Kun käyttäjä valitsee pöydän...
+                    document.getElementById('vapaat-poydat-lista').addEventListener('change', function () {
+                        // ...lukitse lomakkeen kentät.
+                        document.getElementById('pvm').disabled = true;
+                        document.getElementById('aika').disabled = true;
+                        document.getElementById('henkilomaara').disabled = true;
+                    });
+
 
                     // Varaa napin toiminnallisuus
                     document.getElementById('varaa-nappi').addEventListener('click', function (event) {
