@@ -169,6 +169,10 @@
                     // Tyhjennä lista, jos siinä on jo sisältöä
                     poytalistaElementti.innerHTML = '';
 
+                    const defaultOption = document.createElement('option');
+                    defaultOption.text = 'Valitse pöytä';
+                    poytalistaElementti.appendChild(defaultOption);
+
                     if (Array.isArray(data)) {
                         data.forEach(poyta => {
                             // Luo alasvetovalikko ja lisää siihen pöytätiedot
