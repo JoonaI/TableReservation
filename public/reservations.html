@@ -92,14 +92,27 @@
             fetch('/api/aukioloajat')
                 .then(response => response.json())
                 .then(aukioloajat => {
-                    var hours = now.getHours() + 1;
-                    var minutes = now.getMinutes().toString().padStart(2, '0');
+                    var hours = now.getHours();
+                    var minutes = now.getMinutes();
 
                     // Tarkista, onko valittu päivämäärä sama kuin nykyinen päivämäärä
                     if (selectedDate.setHours(0, 0, 0, 0) === now.setHours(0, 0, 0, 0)) {
-                        // Jos on, aseta aika-kentän minimiarvoksi nykyinen kellonaika +1 tunti
-                        document.getElementById('aika').min = `${hours}:${minutes}`;
-                        document.getElementById('aika').max = aukioloajat.sulkuaika;
+                        // Jos on, tarkista onko nykyinen kellonaika yli sulkemisajan
+                        if (hours >= parseInt(aukioloajat.sulkuaika.split(':')[0])) {
+                            // Jos on, estä varauksen tekeminen tälle päivälle
+                            alert('Varauksen tekeminen tälle päivälle ei ole enää mahdollista.');
+                            document.getElementById('aika').disabled = true;
+                        } else {
+                            // Jos ei, aseta aika-kentän minimiarvoksi nykyinen kellonaika
+                            if (minutes < 59) {
+                                minutes += 1;
+                            } else {
+                                hours += 1;
+                                minutes = 0;
+                            }
+                            document.getElementById('aika').min = `${hours}:${minutes.toString().padStart(2, '0')}`;
+                            document.getElementById('aika').max = aukioloajat.sulkuaika;
+                        }
                     } else {
                         // Jos ei, salli minkä tahansa kellonajan valinta aukioloaikojen sisällä
                         document.getElementById('aika').min = aukioloajat.avausaika;
@@ -218,7 +231,7 @@
                             // Lähetetään AJAX-pyyntö palvelimelle päivittääksemme pöydän varaustietoja
                             console.log('Lähetettävän pöydän ID:', varattavaPoytaId);
                             //tarkistetaan onko iso_pöytä checkbox valittu
-                            
+
                             const isoPoyta = document.getElementById('optioIso').checked ? 1 : 0;
                             const pvm = document.getElementById('pvm').value.split('/').reverse().join('-');
                             fetch('/varaa-poyta', {
