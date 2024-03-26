@@ -764,6 +764,70 @@ app.get('/raportit/suosituimmat-ajat', (req, res) => {
     });
 });
 
+app.get('/api/kokonais-tilastot', (req, res) => {
+    const sql = `
+        SELECT 
+            COUNT(*) as kokonais_varaukset,
+            SUM(henkilömäärä) as kokonais_kävijät
+        FROM varaus;
+    `;
+
+    connection.query(sql, (error, results) => {
+        if (error) {
+            console.error('Virhe tietokantakyselyssä: ', error);
+            return res.status(500).json({ error: 'Virhe tietokantakyselyssä' });
+        }
+
+        // Oletetaan, että kysely palauttaa yhden rivin, joka sisältää kokonaistiedot
+        const data = results[0];
+        res.json({
+            kokonaisVaraukset: data.kokonais_varaukset,
+            kokonaisKavijat: data.kokonais_kävijät
+        });
+    });
+});
+
+
+// Luodaan reitti viime viikon varauksien tilastotietojen hakemiselle
+app.get('/api/viikon-tilastot', (req, res) => {
+    const sql = `
+        SELECT 
+            DATE_FORMAT(päivämäärä, '%Y-%m-%d') as päivä, 
+            COUNT(*) as varauksien_määrä, 
+            SUM(henkilömäärä) as henkilöitä_yhteensä
+        FROM varaus
+        WHERE päivämäärä BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND CURDATE()
+        GROUP BY päivä
+        ORDER BY päivä ASC;
+    `;
+
+    connection.query(sql, (error, results) => {
+        if (error) {
+            console.error('Virhe tietokantakyselyssä: ', error);
+            return res.status(500).json({ error: 'Virhe tietokantakyselyssä' });
+        }
+
+        // Lasketaan yhteenlasketut arvot viikolle
+        let kavijatYhteensa = 0;
+        let varauksetYhteensa = 0;
+        results.forEach(r => {
+            kavijatYhteensa += r.henkilöitä_yhteensä;
+            varauksetYhteensa += r.varauksien_määrä;
+        });
+
+        const varauksiaKeskimäärin = varauksetYhteensa / results.length;
+
+        // Palautetaan lasketut arvot ja päiväkohtaiset tiedot
+        res.json({
+            kavijatYhteensa,
+            varauksetYhteensa,
+            varauksiaKeskimäärin,
+            päiväkohtaisetTiedot: results
+        });
+    });
+});
+
+
 //Luodaan reitti rekisteröintilomakkeen lähetykselle: 
 app.post('/register', async (req, res) => {
     const { etunimi, sukunimi, email, username, password } = req.body;
