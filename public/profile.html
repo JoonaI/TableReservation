@@ -315,6 +315,25 @@
                 });
             });
         });
+
+        //Estetään menneiden päivämäärien valinta varauksen teossa
+        document.addEventListener("DOMContentLoaded", function() {
+            // Aseta minimaalinen päivämäärä ja kellonaika nykyhetkeen
+            const today = new Date();
+            const minDate = today.toISOString().split('T')[0]; // Muoto YYYY-MM-DD
+            const minTime = today.toTimeString().split(' ')[0].substring(0, 5); // Muoto HH:MM
+            
+            // Aseta minimaaliset arvot päivämäärä- ja aikakentille
+            document.getElementById("modalPaiva").setAttribute("min", minDate);
+            // Asetetaan kellonajan minimaalinen arvo vain, jos päivämäärä on nykyhetki
+            document.getElementById("modalPaiva").addEventListener("change", function() {
+                if (this.value === minDate) {
+                    document.getElementById("modalAika").setAttribute("min", minTime);
+                } else {
+                    document.getElementById("modalAika").removeAttribute("min");
+                }
+            });
+        });
  
     </script>
     
