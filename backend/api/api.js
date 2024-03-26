@@ -171,34 +171,40 @@ app.get('/user-reservations', (req, res) => {
     }
 });
 
-// Muokataan käyttäjän tekemää varausta
 app.put('/muokkaa-varausta/:varausID', (req, res) => {
     const varausID = req.params.varausID;
     const { päivämäärä, aika, henkilömäärä, erikoispyynnöt, lisätiedot, tilaisuus } = req.body;
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-        return res.status(401).json({ message: 'Token puuttuu' });
-    }
+    // Oletetaan, että loppumisaika lasketaan aina 2 tuntia varauksen alkamisajankohdasta
+    const loppumisaika = new Date(`1970-01-01T${aika}Z`);
+    loppumisaika.setHours(loppumisaika.getHours() + 2);
+    const loppumisaikaFormatoituna = loppumisaika.toISOString().split('T')[1].substring(0, 5) + ":00";
 
-    try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        const userId = decoded.userId;
+    // Tarkistetaan, onko päällekkäisyyksiä olemassa olevien varausten kanssa
+    const tarkistusQuery = `
+        SELECT varaus_id FROM varaus
+        WHERE päivämäärä = ? AND NOT (
+            aika >= ? OR loppumisaika <= ?
+        ) AND varaus_id != ?;
+    `;
 
-        // Päivitä varaus tietokannassa
-        const query = 'UPDATE varaus SET päivämäärä = ?, aika = ?, henkilömäärä = ?, erikoispyynnöt = ?, lisätiedot = ?, tilaisuus = ? WHERE varaus_id = ? AND user_id = ?';
-        connection.query(query, [päivämäärä, aika, henkilömäärä, erikoispyynnöt, lisätiedot, tilaisuus, varausID, userId], (error, results) => {
-            if (error) {
-                console.error('Virhe varauksen muokkaamisessa: ' + error.stack);
-                return res.status(500).json({ error: 'Varauksen muokkaaminen epäonnistui' });
-            }
-            if (results.affectedRows === 0) {
-                return res.status(404).json({ message: 'Varausta ei löytynyt, tai se ei kuulu sinulle' });
-            }
-            res.json({ message: 'Varaus muokattu onnistuneesti' });
-        });
-    } catch (error) {
-        res.status(401).json({ message: 'Virheellinen token' });
-    }
+    connection.query(tarkistusQuery, [päivämäärä, loppumisaikaFormatoituna, aika, varausID], (error, results) => {
+        if (error) {
+            return res.status(500).json({ error: 'Tietokantavirhe tarkistettaessa päällekkäisyyksiä' });
+        }
+        if (results.length > 0) {
+            // Löytyi päällekkäisyyksiä
+            return res.status(409).json({ message: 'Varaus päällekkäin olemassa olevan varauksen kanssa.' });
+        } else {
+            // Päällekkäisyyksiä ei löytynyt, päivitetään varaus
+            const päivitysQuery = 'UPDATE varaus SET päivämäärä = ?, aika = ?, henkilömäärä = ?, erikoispyynnöt = ?, lisätiedot = ?, tilaisuus = ? WHERE varaus_id = ?';
+            connection.query(päivitysQuery, [päivämäärä, aika, henkilömäärä, erikoispyynnöt, lisätiedot, tilaisuus, varausID], (updateError, updateResults) => {
+                if (updateError) {
+                    return res.status(500).json({ error: 'Varauksen päivittäminen epäonnistui.' });
+                }
+                res.json({ message: 'Varaus päivitetty onnistuneesti.' });
+            });
+        }
+    });
 });
 
 // Poistetaan varaus omassa profiilissa
