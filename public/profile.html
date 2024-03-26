@@ -132,6 +132,39 @@
                 // Aseta varaus_id piilokenttään modaali-ikkunassa
                 document.getElementById('modalVarausId').value = varaus_id;
 
+                // Hae aukioloajat tässä, kun modaali avataan
+                fetch('/api/aukioloajat')
+                    .then(response => response.json())
+                    .then(aukioloajat => {
+                        const modalPaiva = document.getElementById("modalPaiva");
+                        const modalAika = document.getElementById("modalAika");
+                        const today = new Date().toISOString().split('T')[0];
+
+                        if (modalPaiva.value === today) {
+                            // Aseta nykyhetken kellonaika +1 tunti minimiksi, jos varaus on tälle päivälle
+                            const now = new Date();
+                            const hours = now.getHours() + 1;
+                            const minutes = now.getMinutes().toString().padStart(2, '0');
+                            modalAika.min = `${hours}:${minutes}`;
+                        } else {
+                            modalAika.min = aukioloajat.avausaika;
+                        }
+                        modalAika.max = aukioloajat.sulkuaika;
+                        
+                        // Kuuntele muutoksia modalPaiva-kentässä
+                        modalPaiva.addEventListener('change', function() {
+                            if (this.value === today) {
+                                const now = new Date();
+                                const hours = now.getHours() + 1;
+                                const minutes = now.getMinutes().toString().padStart(2, '0');
+                                modalAika.min = `${hours}:${minutes}`;
+                            } else {
+                                modalAika.min = aukioloajat.avausaika;
+                            }
+                        });
+                    })
+                    .catch(error => console.error('Virhe:', error));
+
                 // Näytä modaali-ikkuna
                 document.getElementById('editReservationModal').style.display = "block";
             };
