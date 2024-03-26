@@ -677,7 +677,7 @@ app.put('/vahvista-varaus/:varausID', (req, res) => {
                     <p>Pöytä: ${pöytä_id}</p>
                     <p>Päivämäärä: ${formattedDate}</p>
                     <p>Kellonaika: ${formattedTime}</p>
-                    <p>Voit muokata varaustasi vielä profiilistasi. Odotamme innolla tapaamistasi!</p>
+                    <p>Odotamme innolla tapaamistasi!</p>
                 `;
 
                 sendEmail(
