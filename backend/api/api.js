@@ -174,7 +174,7 @@ app.get('/user-reservations', (req, res) => {
 // Muokataan käyttäjän tekemää varausta
 app.put('/muokkaa-varausta/:varausID', (req, res) => {
     const varausID = req.params.varausID;
-    const { päivämäärä, aika, henkilömäärä } = req.body;
+    const { päivämäärä, aika, henkilömäärä, erikoispyynnöt, lisätiedot, tilaisuus } = req.body;
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
         return res.status(401).json({ message: 'Token puuttuu' });
@@ -185,8 +185,8 @@ app.put('/muokkaa-varausta/:varausID', (req, res) => {
         const userId = decoded.userId;
 
         // Päivitä varaus tietokannassa
-        const query = 'UPDATE varaus SET päivämäärä = ?, aika = ?, henkilömäärä = ? WHERE varaus_id = ? AND user_id = ?';
-        connection.query(query, [päivämäärä, aika, henkilömäärä, varausID, userId], (error, results) => {
+        const query = 'UPDATE varaus SET päivämäärä = ?, aika = ?, henkilömäärä = ?, erikoispyynnöt = ?, lisätiedot = ?, tilaisuus = ? WHERE varaus_id = ? AND user_id = ?';
+        connection.query(query, [päivämäärä, aika, henkilömäärä, erikoispyynnöt, lisätiedot, tilaisuus, varausID, userId], (error, results) => {
             if (error) {
                 console.error('Virhe varauksen muokkaamisessa: ' + error.stack);
                 return res.status(500).json({ error: 'Varauksen muokkaaminen epäonnistui' });
@@ -275,6 +275,12 @@ app.post('/update-password', async (req, res) => {
         const { newPassword } = req.body;
         if (!newPassword) {
             return res.status(400).json({ message: 'Uusi salasana on pakollinen' });
+        }
+
+        // Tarkistetaan, täyttääkö uusi salasana vahvuusvaatimukset
+        const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+        if (!passwordRegex.test(newPassword)) {
+            return res.status(400).json({ message: 'Salasanan on sisällettävä vähintään yksi numero, yksi erityismerkki, yksi iso kirjain, yksi pieni kirjain ja oltava vähintään 8 merkkiä pitkä.' });
         }
 
         // Salataan uusi salasana bcryptillä

@@ -379,6 +379,7 @@ footer {
 
 /* Modaalin tyylit */
 .modal {
+    display: none;
     position: fixed;
     z-index: 1;
     left: 0;
@@ -413,7 +414,117 @@ footer {
     cursor: pointer;
 }
 
-.modal {
-    display: none;
-    /* Lisää tarvittavat tyylit täällä */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Modaali-lomakkeen sisällön muotoilu kaikille modaaleille */
+.modal-content form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.modal-content form input[type="text"],
+.modal-content form input[type="email"],
+.modal-content form input[type="password"],
+.modal-content form input[type="date"],
+.modal-content form input[type="time"],
+.modal-content form input[type="number"],
+.modal-content form textarea,
+.modal-content form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    box-sizing: border-box;
+    margin-bottom: 15px; /* Varmistaa, että on tilaa elementtien välillä */
+}
+
+.modal-content form button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #f6bd60;
+    border: none;
+    border-radius: 30px;
+    color: #000000;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-content form button[type="submit"]:hover {
+    background-color: #d49c42;
+}
+
+/* Mediakysely mobiililaitteille, esimerkiksi alle 768px leveydelle */
+@media (max-width: 768px) {
+    body, .modal-content {
+        padding: 10px; /* Pienennetään paddingia mobiililaitteilla */
+    }
+
+    /* Pienennetään navigointilinkkien paddingia ja fonttikokoa */
+    nav ul li a {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    /* Säädä lomakkeiden ja niiden elementtien leveyksiä ja marginaaleja */
+    form#register-form, form#login-form, form#reset-password-form, 
+    form#profile-form, #varaukset-section form, #vapaat-poydat form, .modal-content form {
+        max-width: 100%; /* Käyttää koko saatavilla olevan leveyden */
+        margin: 10px auto;
+    }
+
+    form#register-form input[type="text"], 
+    form#register-form input[type="email"], 
+    form#register-form input[type="password"],
+    form#login-form input[type="text"],
+    form#login-form input[type="password"],
+    form#reset-password-form input[type="email"],
+    form#profile-form input[type="text"],
+    form#profile-form input[type="email"],
+    form#profile-form input[type="password"],
+    #varaukset-section input[type="date"],
+    #varaukset-section input[type="time"],
+    #varaukset-section input[type="number"],
+    #varaukset-section textarea,
+    #varaukset-section select,
+    #vapaat-poydat select {
+        width: calc(100% - 20px); /* Vähennetään leveydestä paddingit */
+    }
+
+    /* Pienennetään footerin fonttikokoa */
+    footer {
+        font-size: 12px;
+    }
+
+    /* Pienennetään otsikoiden kokoa */
+    h1, h2, h3, h4, h5, h6 {
+        font-size: 16px; /* Esimerkki otsikoiden fonttikoon pienentämisestä */
+    }
+
+    /* Tehdään nappuloiden kosketusalueesta suurempi */
+    button, .button-peru, .hallinta-button-peru, .hallinta-button-vahvista {
+        padding: 12px 15px;
+        font-size: 14px; /* Pienennetään fonttikokoa mutta suurennetaan paddingia */
+    }
+
+    /* Korttien asettelu yhteystietosivulla */
+    .contact-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .contact-card {
+        width: 90%; /* Tehdään kortit leveämmiksi mobiilinäkymässä */
+    }
 }

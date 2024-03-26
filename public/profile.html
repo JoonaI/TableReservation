@@ -152,13 +152,16 @@
 
                 // Kerää tiedot lomakkeelta
                 var varausId = document.getElementById('modalVarausId').value;
-                var uusiPäivämäärä = document.getElementById('modalDate').value;
-                var uusiAika = document.getElementById('modalTime').value;
-                var uusiHenkilömäärä = document.getElementById('modalPeople').value;
+                var uusiPäivämäärä = document.getElementById('modalPaiva').value;
+                var uusiAika = document.getElementById('modalAika').value;
+                var uusiHenkilömäärä = document.getElementById('modalHenkilo').value;
+                var uudetErikoispyynnöt = document.getElementById('modalErikoispyynnot').value;
+                var uudetLisätiedot = document.getElementById('modalLisatiedot').value;
+                var uusiTilaisuus = document.getElementById('modalTilaisuus').value;
 
                 // Tarkista, että kaikki kentät on täytetty
                 if (!uusiPäivämäärä || !uusiAika || !uusiHenkilömäärä) {
-                    alert("Kaikki tiedot ovat pakollisia.");
+                    alert("Päivämäärä, aika ja henkilömäärä ovat pakollisia.");
                     return;
                 }
 
@@ -169,7 +172,14 @@
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
                     'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ päivämäärä: uusiPäivämäärä, aika: uusiAika, henkilömäärä: uusiHenkilömäärä })
+                    body: JSON.stringify({ 
+                    päivämäärä: uusiPäivämäärä, 
+                    aika: uusiAika, 
+                    henkilömäärä: uusiHenkilömäärä,
+                    erikoispyynnöt: uudetErikoispyynnöt,
+                    lisätiedot: uudetLisätiedot,
+                    tilaisuus: uusiTilaisuus 
+                    })
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -307,23 +317,53 @@
  
     </script>
     
-    <!-- Modaali Ikkuna Varauksen Muokkaamiseen -->
-    <div id="editReservationModal" class="modal">
+    <!-- Modaali varauksen muokkaamiseen -->
+    <div id="editReservationModal" class="modal" style="display:none;">
         <div class="modal-content">
         <span class="close">&times;</span>
         <form id="editReservationForm">
             <input type="hidden" id="modalVarausId">
             <label for="modalDate">Päivämäärä:</label>
-            <input type="date" id="modalDate" name="date" required>
+            <input type="date" id="modalPaiva" name="uusipaiva" required>
             
             <label for="modalTime">Aika:</label>
-            <input type="time" id="modalTime" name="time" required>
+            <input type="time" id="modalAika" name="uusiaika" required>
             
             <label for="modalPeople">Henkilömäärä:</label>
-            <input type="number" id="modalPeople" name="people" required>
+            <input type="number" id="modalHenkilo" name="uusihenkilo" required>
+
+            <label for="erikoispyynnot">Erikoispyynnöt (esim. allergiat, ruokavaliorajoitukset):</label>
+            <textarea id="modalErikoispyynnot" name="uusierikoispyynnot"></textarea><br><br>
+
+            <label for="lisatiedot">Lisäpalvelupyynnöt (esim. kukat pöydälle, sijainti):</label>
+            <textarea id="modalLisatiedot" name="uusilisatiedot"></textarea><br><br>
+
+            <label for="tilaisuus">Tilaisuus:</label>
+            <select id="modalTilaisuus" name="uusitilaisuus">
+                <option value="">Valitse...</option>
+                <option value="syntymapaiva">Syntymäpäivä</option>
+                <option value="hääjuhla">Hääjuhla</option>
+                <option value="valmistujaiset">Valmistujaiset</option>
+                <option value="merkkipaiva">Merkkipäivä</option>
+            </select><br><br>
             
             <button type="submit">Päivitä Varaus</button>
         </form>
+        </div>
+    </div>
+
+    <!-- Modaali salasanan vaihtoa Varten -->
+    <div id="passwordChangeModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Vaihda Salasana</h2>
+            <form id="passwordChangeForm">
+                <div class="form-group">
+                    <label for="newPassword">Uusi Salasana:</label>
+                    <input type="password" id="newPassword" name="newPassword" required>
+                </div>
+                <button type="submit">Tallenna</button>
+            </form>
         </div>
     </div>
 
