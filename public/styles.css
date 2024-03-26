@@ -412,3 +412,8 @@ footer {
     text-decoration: none;
     cursor: pointer;
 }
+
+.modal {
+    display: none;
+    /* Lisää tarvittavat tyylit täällä */
+}

@@ -127,26 +127,53 @@
 
 
             window.muokkaaVarausta = function(varaus_id) {
-                const uusiPäivämäärä = prompt("Anna uusi päivämäärä (muodossa VVVV-KK-PP):");
-                const uusiAika = prompt("Anna uusi aika (muodossa TT:MM):");
-                const uusiHenkilömäärä = prompt("Anna uusi henkilömäärä:");
-                
+                // Aseta varaus_id piilokenttään modaali-ikkunassa
+                document.getElementById('modalVarausId').value = varaus_id;
+
+                // Näytä modaali-ikkuna
+                document.getElementById('editReservationModal').style.display = "block";
+            };
+
+            // Modaali-ikkunan sulkeutumisen käsittely
+            document.querySelector('.close').onclick = function() {
+                document.getElementById('editReservationModal').style.display = "none";
+            };
+
+            // Estä klikkaamasta modaali-ikkunan ulkopuolella sulkeakseen sen
+            window.onclick = function(event) {
+                if (event.target == document.getElementById('editReservationModal')) {
+                    document.getElementById('editReservationModal').style.display = "none";
+                }
+            };
+
+            // Kuuntelija modaali-ikkunan lomakkeelle
+            document.getElementById('editReservationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Kerää tiedot lomakkeelta
+                var varausId = document.getElementById('modalVarausId').value;
+                var uusiPäivämäärä = document.getElementById('modalDate').value;
+                var uusiAika = document.getElementById('modalTime').value;
+                var uusiHenkilömäärä = document.getElementById('modalPeople').value;
+
+                // Tarkista, että kaikki kentät on täytetty
                 if (!uusiPäivämäärä || !uusiAika || !uusiHenkilömäärä) {
                     alert("Kaikki tiedot ovat pakollisia.");
                     return;
                 }
 
-                fetch('/muokkaa-varausta/' + varaus_id, {
-                    method: 'PUT', // Käyttää PUT-metodia
+                // Lähetä päivitetyt tiedot palvelimelle PUT-pyynnöllä
+                fetch('/muokkaa-varausta/' + varausId, {
+                    method: 'PUT',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                        'Content-Type': 'application/json'
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ päivämäärä: uusiPäivämäärä, aika: uusiAika, henkilömäärä: uusiHenkilömäärä })
                 })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Varauksen muokkaaminen epäonnistui');
+                    throw new Error('Varauksen muokkaaminen epäonnistui');
                     }
                     return response.json();
                 })
@@ -159,7 +186,10 @@
                     console.error('Virhe:', error);
                     alert('Varauksen muokkaus epäonnistui: ' + error.message);
                 });
-            };
+
+                // Sulje modaali-ikkuna
+                document.getElementById('editReservationModal').style.display = "none";
+            });
 
 
             // Peruuta varaus -funktio
@@ -277,27 +307,30 @@
  
     </script>
     
+    <!-- Modaali Ikkuna Varauksen Muokkaamiseen -->
+    <div id="editReservationModal" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <form id="editReservationForm">
+            <input type="hidden" id="modalVarausId">
+            <label for="modalDate">Päivämäärä:</label>
+            <input type="date" id="modalDate" name="date" required>
+            
+            <label for="modalTime">Aika:</label>
+            <input type="time" id="modalTime" name="time" required>
+            
+            <label for="modalPeople">Henkilömäärä:</label>
+            <input type="number" id="modalPeople" name="people" required>
+            
+            <button type="submit">Päivitä Varaus</button>
+        </form>
+        </div>
+    </div>
 
     <!-- Alatunniste -->
     <footer>
         <p>&copy; 2024 Ravintola Ryhmä C</p>
     </footer>
-
-
-    <!-- Modaali Salasanan Vaihtoa Varten -->
-    <div id="passwordChangeModal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2>Vaihda Salasana</h2>
-            <form id="passwordChangeForm">
-                <div class="form-group">
-                    <label for="newPassword">Uusi Salasana:</label>
-                    <input type="password" id="newPassword" name="newPassword" required>
-                </div>
-                <button type="submit">Tallenna</button>
-            </form>
-        </div>
-    </div>
     
 </body>
 
