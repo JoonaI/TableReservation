@@ -104,25 +104,27 @@
             })
             .then(response => response.json())
             .then(varaukset => {
-                const varauksetLista = document.getElementById('varaukset-lista');
-                varauksetLista.innerHTML = ''; // Tyhjennä lista ennen uusien varauksien lisäämistä
-                // Lisää jokainen varaus listaan
-                varaukset.forEach(varaus => {
-                    // Muunnetaan ISO 8601 -muotoinen päivämäärä JavaScriptin Date-objektiksi
-                    const date = new Date(varaus.päivämäärä);
-                    // Muunnetaan päivämäärä haluttuun muotoon
-                    const formattedDate = date.toLocaleDateString(); // Tässä muodossa "kk/pp/vvvv"
+            const varauksetLista = document.getElementById('varaukset-lista');
+            varauksetLista.innerHTML = ''; // Tyhjennä lista ennen uusien varauksien lisäämistä
+            // Lisää jokainen varaus listaan
+            varaukset.forEach(varaus => {
+            // Tarkista, onko varaus vahvistettu
+            const isVahvistettu = varaus.on_vahvistettu === 1; // Oletetaan, että vahvistustila on saatavilla varauksen tiedoissa
+            // Muunnetaan ISO 8601 -muotoinen päivämäärä JavaScriptin Date-objektiksi
+            const date = new Date(varaus.päivämäärä);
+            // Muunnetaan päivämäärä haluttuun muotoon
+            const formattedDate = date.toLocaleDateString(); // Tässä muodossa "kk/pp/vvvv"
 
-                    varauksetLista.innerHTML += `
-                        <li>
-                            Varaus ID: ${varaus.varaus_id}, Päivämäärä: ${formattedDate}, Aika: ${varaus.aika},
-                            Henkilömäärä: ${varaus.henkilömäärä}, Erikoispyynnöt: ${varaus.erikoispyynnöt || ''},
-                            Lisätiedot: ${varaus.lisätiedot || ''}, Tilaisuus: ${varaus.tilaisuus || ''}
-                            <button onclick="muokkaaVarausta(${varaus.varaus_id})">Muokkaa</button>
-                            <button class="button-peru" onclick="peruVaraus(${varaus.varaus_id})">Peru varaus</button>
-                        </li>`;
-                });
-            })
+            varauksetLista.innerHTML += `
+            <li>
+                Varaus ID: ${varaus.varaus_id}, Päivämäärä: ${formattedDate}, Aika: ${varaus.aika},
+                Henkilömäärä: ${varaus.henkilömäärä}, Erikoispyynnöt: ${varaus.erikoispyynnöt || ''},
+                Lisätiedot: ${varaus.lisätiedot || ''}, Tilaisuus: ${varaus.tilaisuus || ''}
+                ${isVahvistettu ? '' : `<button onclick="muokkaaVarausta(${varaus.varaus_id})">Muokkaa</button>`}
+                <button class="button-peru" onclick="peruVaraus(${varaus.varaus_id})">Peru varaus</button>
+            </li>`;
+            });
+        })
             .catch(error => console.error('Virhe haettaessa varauksia:', error));
 
 
