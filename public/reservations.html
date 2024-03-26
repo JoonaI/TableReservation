@@ -102,6 +102,13 @@
                             // Jos on, estä varauksen tekeminen tälle päivälle
                             alert('Varauksen tekeminen tälle päivälle ei ole enää mahdollista.');
                             document.getElementById('aika').disabled = true;
+                            document.getElementById('tarkista-saatavuus').disabled = true;
+                            document.getElementById('henkilomaara').disabled = true;
+                            document.getElementById('erikoispyynnot').disabled = true;
+                            document.getElementById('lisatiedot').disabled = true;
+                            document.getElementById('tilaisuus').disabled = true;
+                            document.getElementById('varaa-nappi').disabled = true;
+                            document.getElementById('vapaat-poydat-lista').disabled = true;
                         } else {
                             // Jos ei, aseta aika-kentän minimiarvoksi nykyinen kellonaika
                             if (minutes < 59) {
