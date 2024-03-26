@@ -72,14 +72,14 @@
         document.getElementById('register-form').addEventListener('submit', function(event) {
             event.preventDefault(); // Estää lomakkeen normaalin lähetyksen
 
-            /*
+            
             const password = document.getElementById('register-password').value;
             const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
     
             if (!passwordRegex.test(password)) {
                 alert('Salasanan on sisällettävä vähintään yksi numero, yksi erityismerkki, yksi iso kirjain, yksi pieni kirjain ja oltava vähintään 8 merkkiä pitkä.');
                 event.preventDefault(); // Estää lomakkeen lähetyksen
-            } */
+            } 
             const formData = new FormData(event.target);
         const formProps = Object.fromEntries(formData);
 

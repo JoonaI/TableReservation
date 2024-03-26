@@ -797,11 +797,11 @@ app.post('/register', async (req, res) => {
         }
 
         const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
-        /*
+        
         if (!passwordRegex.test(password)) {
             return res.status(400).json({ message: 'Salasanan on sisällettävä vähintään yksi numero, yksi erityismerkki, yksi iso kirjain, yksi pieni kirjain ja oltava vähintään 8 merkkiä pitkä.' });
         }
-        */
+        
 
         try {
             // Hasheetaan salasana bcryptillä
