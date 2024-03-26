@@ -201,7 +201,7 @@ app.put('/muokkaa-varausta/:varausID', (req, res) => {
     }
 });
 
-// Poistetaan käyttäjän tekemä varaus
+// Poistetaan varaus omassa profiilissa
 app.delete('/peruuta-varaus/:varausID', (req, res) => {
     const varausID = req.params.varausID;
     const token = req.headers.authorization?.split(' ')[1];
@@ -223,36 +223,8 @@ app.delete('/peruuta-varaus/:varausID', (req, res) => {
             if (results.affectedRows === 0) {
                 return res.status(404).json({ message: 'Varausta ei löytynyt, tai se ei kuulu sinulle' });
             }
-
-            connection.query('SELECT email FROM poytavaraus.users WHERE user_id = ?', [userId], (error, emailResults) => {
-                if (error) {
-                    console.error('Virhe käyttäjän sähköpostiosoitteen haussa: ' + error.stack);
-                    return res.status(500).json({ error: 'Sähköpostiosoitteen haku epäonnistui' });
-                } else if (emailResults.length > 0) {
-                    const userEmail = emailResults[0].email;
-
-                    const emailHtml = `
-                        <h1>Olet peruuttanut varauksesi</h1>
-                        <p>Olet peruuttanut varauksesi meidän ravintolassamme. Jos tämä oli virhe, voit tehdä uuden varauksen verkkosivuillamme.</p>
-                    `;
-
-                    sendEmail(
-                        userEmail,
-                        'Varauksesi on peruutettu',
-                        'Olet peruuttanut varauksesi meidän ravintolassamme.',
-                        emailHtml
-                    ).then(() => {
-                        return res.json({ message: 'Varaus peruutettu ja sähköposti lähetetty.' });
-                    }).catch(error => {
-                        console.error('Sähköpostin lähetys epäonnistui: ' + error);
-                        return res.status(500).json({ error: 'Sähköpostin lähetys epäonnistui' });
-                    });
-                } else {
-                    console.error('Käyttäjän sähköpostiosoite ei löytynyt.');
-                    return res.status(404).json({ message: 'Käyttäjän sähköpostiosoite ei löytynyt.' });
-                }
-            });
-
+            // Onnistuneen varauksen peruutuksen käsittely
+            res.json({ message: 'Varaus peruutettu onnistuneesti.' });
         });
     } catch (error) {
         res.status(401).json({ message: 'Virheellinen token' });
