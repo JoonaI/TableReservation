@@ -200,25 +200,27 @@
                     return;
                 }
 
-                // Lähetä päivitetyt tiedot palvelimelle PUT-pyynnöllä
                 fetch('/muokkaa-varausta/' + varausId, {
                     method: 'PUT',
                     headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ 
-                    päivämäärä: uusiPäivämäärä, 
-                    aika: uusiAika, 
-                    henkilömäärä: uusiHenkilömäärä,
-                    erikoispyynnöt: uudetErikoispyynnöt,
-                    lisätiedot: uudetLisätiedot,
-                    tilaisuus: uusiTilaisuus 
+                        päivämäärä: uusiPäivämäärä, 
+                        aika: uusiAika, 
+                        henkilömäärä: uusiHenkilömäärä,
+                        erikoispyynnöt: uudetErikoispyynnöt,
+                        lisätiedot: uudetLisätiedot,
+                        tilaisuus: uusiTilaisuus 
                     })
                 })
                 .then(response => {
                     if (!response.ok) {
-                    throw new Error('Varauksen muokkaaminen epäonnistui');
+                        // Käsittele ei-ok vastaukset erikseen
+                        return response.json().then(function(err) {
+                            throw err;
+                        });
                     }
                     return response.json();
                 })
