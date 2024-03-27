@@ -196,8 +196,8 @@ app.put('/muokkaa-varausta/:varausID', (req, res) => {
             return res.status(409).json({ message: 'Varaus päällekkäin olemassa olevan varauksen kanssa.' });
         } else {
             // Päällekkäisyyksiä ei löytynyt, päivitetään varaus
-            const päivitysQuery = 'UPDATE varaus SET päivämäärä = ?, aika = ?, henkilömäärä = ?, erikoispyynnöt = ?, lisätiedot = ?, tilaisuus = ? WHERE varaus_id = ?';
-            connection.query(päivitysQuery, [päivämäärä, aika, henkilömäärä, erikoispyynnöt, lisätiedot, tilaisuus, varausID], (updateError, updateResults) => {
+            const päivitysQuery = 'UPDATE varaus SET päivämäärä = ?, aika = ?, loppumisaika = ?, henkilömäärä = ?, erikoispyynnöt = ?, lisätiedot = ?, tilaisuus = ? WHERE varaus_id = ?';
+            connection.query(päivitysQuery, [päivämäärä, aika, loppumisaikaFormatoituna, henkilömäärä, erikoispyynnöt, lisätiedot, tilaisuus, varausID], (updateError, updateResults) => {
                 if (updateError) {
                     return res.status(500).json({ error: 'Varauksen päivittäminen epäonnistui.' });
                 }
