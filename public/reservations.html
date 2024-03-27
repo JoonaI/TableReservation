@@ -112,7 +112,8 @@
                         } else {
                             // Jos ei, aseta aika-kentän minimiarvoksi nykyinen kellonaika
                             if (minutes < 59) {
-                                minutes += 1;
+                                hours += 1;
+                                
                             } else {
                                 hours += 1;
                                 minutes = 0;
