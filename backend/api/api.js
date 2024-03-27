@@ -174,20 +174,26 @@ app.get('/user-reservations', (req, res) => {
 app.put('/muokkaa-varausta/:varausID', (req, res) => {
     const varausID = req.params.varausID;
     const { päivämäärä, aika, henkilömäärä, erikoispyynnöt, lisätiedot, tilaisuus } = req.body;
-    // Oletetaan, että loppumisaika lasketaan aina 2 tuntia varauksen alkamisajankohdasta
-    const loppumisaika = new Date(`1970-01-01T${aika}Z`);
-    loppumisaika.setHours(loppumisaika.getHours() + 2);
-    const loppumisaikaFormatoituna = loppumisaika.toISOString().split('T')[1].substring(0, 5) + ":00";
+    
+    // Muunnetaan aika ja loppumisaika tietokannan TIME-muotoon (HH:MM:SS)
+    const alkamisAika = new Date(`1970-01-01T${aika}Z`);
+    const loppumisAika = new Date(alkamisAika.getTime() + 2 * 60 * 60 * 1000); // Lisätään 2 tuntia
+    
+    // Muotoillaan aika tietokannan ymmärtämään muotoon
+    const alkamisAikaFormatoituna = alkamisAika.toISOString().split('T')[1].substring(0, 8);
+    const loppumisaikaFormatoituna = loppumisAika.toISOString().split('T')[1].substring(0, 8);
 
     // Tarkistetaan, onko päällekkäisyyksiä olemassa olevien varausten kanssa
     const tarkistusQuery = `
-        SELECT varaus_id FROM varaus
-        WHERE päivämäärä = ? AND NOT (
-            loppumisaika <= ? OR aika >= ?
-        ) AND varaus_id != ?;
+    SELECT varaus_id FROM varaus
+    WHERE päivämäärä = ? AND (
+        (aika < ? AND loppumisaika > ?) OR
+        (aika < ? AND loppumisaika > ?) OR
+        (aika >= ? AND loppumisaika <= ?)
+    ) AND varaus_id != ?;
     `;
 
-    connection.query(tarkistusQuery, [päivämäärä, loppumisaikaFormatoituna, aika, varausID], (error, results) => {
+    connection.query(tarkistusQuery, [päivämäärä, alkamisAikaFormatoituna, loppumisaikaFormatoituna, loppumisaikaFormatoituna, alkamisAikaFormatoituna, alkamisAikaFormatoituna, loppumisaikaFormatoituna, varausID], (error, results) => {
         if (error) {
             return res.status(500).json({ error: 'Tietokantavirhe tarkistettaessa päällekkäisyyksiä' });
         }
@@ -197,7 +203,7 @@ app.put('/muokkaa-varausta/:varausID', (req, res) => {
         } else {
             // Päällekkäisyyksiä ei löytynyt, päivitetään varaus
             const päivitysQuery = 'UPDATE varaus SET päivämäärä = ?, aika = ?, loppumisaika = ?, henkilömäärä = ?, erikoispyynnöt = ?, lisätiedot = ?, tilaisuus = ? WHERE varaus_id = ?';
-            connection.query(päivitysQuery, [päivämäärä, aika, loppumisaikaFormatoituna, henkilömäärä, erikoispyynnöt, lisätiedot, tilaisuus, varausID], (updateError, updateResults) => {
+            connection.query(päivitysQuery, [päivämäärä, alkamisAikaFormatoituna, loppumisaikaFormatoituna, henkilömäärä, erikoispyynnöt, lisätiedot, tilaisuus, varausID], (updateError, updateResults) => {
                 if (updateError) {
                     return res.status(500).json({ error: 'Varauksen päivittäminen epäonnistui.' });
                 }
