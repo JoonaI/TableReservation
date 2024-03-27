@@ -183,7 +183,7 @@ app.put('/muokkaa-varausta/:varausID', (req, res) => {
     const tarkistusQuery = `
         SELECT varaus_id FROM varaus
         WHERE päivämäärä = ? AND NOT (
-            aika >= ? OR loppumisaika <= ?
+            loppumisaika <= ? OR aika >= ?
         ) AND varaus_id != ?;
     `;
 
