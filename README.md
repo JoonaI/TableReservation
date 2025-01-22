@@ -1,9 +1,9 @@
 # Introduction 
 Kouluprojektina tehty ravintolan pöytienvarausjärjestelmä verkkosivut. 
 Projektissa työskentelivät:
-Joona Iivanainen
-Taru Rinne
-Tuomas Tuovinen
+Joona Iivanainen,
+Taru Rinne,
+Tuomas Tuovinen,
 Niko Lappalainen
 
 # Getting Started
